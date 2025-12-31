@@ -26,6 +26,8 @@ contract Voting is Ownable {
 
     string private s_question;
     mapping(address => bool) private s_voters;
+    mapping(bytes32 => bool) private s_nullifierHashes;
+
     uint256 private s_yesVotes;
     uint256 private s_noVotes;
     IVerifier private i_verifier;
@@ -137,7 +139,7 @@ contract Voting is Ownable {
         if (_root != bytes32(s_tree.root())) {
             revert Voting__InvalidRoot();
         }
-        bytes32 memory publicInputs = new bytes32[](4);
+        bytes32[] memory publicInputs = new bytes32[](4);
         publicInputs[0] = _nullifierHash;
         publicInputs[1] = _root;
         publicInputs[2] = _vote;
@@ -147,11 +149,11 @@ contract Voting is Ownable {
             revert Voting__InvalidProof();
         }
         if (s_nullifierHashes[_nullifierHash]) {
-            revert Voting__NullifierAlreadyUsed(_nullifierHash);
+            revert Voting__NullifierHashAlreadyUsed(_nullifierHash);
         }
 
         s_nullifierHashes[_nullifierHash] = true;
-        if (_vote == bytes32(1)) {
+        if (_vote == bytes32(uint256(1))) {
             s_yesVotes++;
         } else {
             s_noVotes++;
