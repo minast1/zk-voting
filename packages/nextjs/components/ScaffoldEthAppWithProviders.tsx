@@ -10,14 +10,30 @@ import { WagmiProvider } from "wagmi";
 import { Footer } from "~~/components/Footer";
 import { Header } from "~~/components/Header";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
+import { Poll, VoterIdentity, clearVoterIdentity, getPolls, getVoterIdentity } from "~~/lib/voting";
 import { wagmiConfig } from "~~/services/web3/wagmiConfig";
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
+  const [voter, setVoter] = useState<VoterIdentity | null>(null);
+  const [, setPolls] = useState<Poll[]>([]);
+
+  useEffect(() => {
+    const storedVoter = getVoterIdentity();
+    if (storedVoter) {
+      setVoter(storedVoter);
+    }
+    setPolls(getPolls());
+  }, []);
+  const handleLogout = () => {
+    clearVoterIdentity();
+    setVoter(null);
+  };
+
   return (
     <>
-      <div className={`flex flex-col min-h-screen `}>
-        <Header />
-        <main className="relative flex flex-col flex-1">{children}</main>
+      <div className="min-h-screen bg-background">
+        <Header voter={voter} onLogout={handleLogout} />
+        <main className="container mx-auto px-4 py-8 max-w-4xl">{children}</main>
         <Footer />
       </div>
       <Toaster />
