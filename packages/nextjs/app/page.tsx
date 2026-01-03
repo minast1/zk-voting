@@ -3,6 +3,7 @@
 // import Link from "next/link";
 // import { Address } from "@scaffold-ui/components";
 import { useEffect, useState } from "react";
+import { useScaffoldEventHistory } from "../hooks/scaffold-eth/useScaffoldEventHistory";
 // import { hardhat } from "viem/chains";
 // import { useAccount } from "wagmi";
 // import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
@@ -13,6 +14,13 @@ import { VoterRegistration } from "~~/components/voter-registration";
 import { Poll, VoterIdentity, getPolls, getVoterIdentity } from "~~/lib/voting";
 
 const Home: NextPage = () => {
+  const { data: leafEvents } = useScaffoldEventHistory({
+    contractName: "Voting",
+    eventName: "NewLeaf",
+    watch: true,
+    enabled: true,
+  });
+
   const [, setVoter] = useState<VoterIdentity | null>(null);
   const [, setPolls] = useState<Poll[]>([]);
 
@@ -23,10 +31,6 @@ const Home: NextPage = () => {
     }
     setPolls(getPolls());
   }, []);
-
-  const handleRegister = (identity: VoterIdentity) => {
-    setVoter(identity);
-  };
 
   return (
     <>
@@ -82,7 +86,7 @@ const Home: NextPage = () => {
         </div>
 
         {/* Registration */}
-        <VoterRegistration onRegister={handleRegister} />
+        <VoterRegistration leafEvents={leafEvents || []} />
       </div>
     </>
   );

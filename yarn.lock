@@ -3624,6 +3624,7 @@ __metadata:
     next: ~15.2.8
     next-nprogress-bar: ~2.3.13
     next-themes: ~0.3.0
+    poseidon-lite: ^0.3.0
     postcss: ~8.4.45
     prettier: ~3.5.3
     qrcode.react: ~4.0.1
@@ -13278,6 +13279,13 @@ __metadata:
   bin:
     porto: dist/cli/bin/index.js
   checksum: abf70fa7867c7e075f0cbc3c3281fed6611f35026a6fe9cdcfaf15ec3db9a7dd109ad8b087126923f97bfdb49114b48e5715292addaf38b4105b656345653509
+  languageName: node
+  linkType: hard
+
+"poseidon-lite@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "poseidon-lite@npm:0.3.0"
+  checksum: 49e46dc43d222f12b76bd3758ef4d4a507d9c788d4221a0e29ad9d29a7ddff54d1e0f9fc58dff15aba8bef87b36b0a47925af5cc4663e2724b14243ef6076247
   languageName: node
   linkType: hard
 

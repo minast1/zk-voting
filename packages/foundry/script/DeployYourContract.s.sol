@@ -2,8 +2,8 @@
 pragma solidity ^0.8.19;
 
 import "./DeployHelpers.s.sol";
-import "../contracts/YourContract.sol";
-
+import "../contracts/Voting.sol";
+import "../contracts/Verifier.sol";
 /**
  * @notice Deploy script for YourContract contract
  * @dev Inherits ScaffoldETHDeploy which:
@@ -25,6 +25,14 @@ contract DeployYourContract is ScaffoldETHDeploy {
      *      - Export contract addresses & ABIs to `nextjs` packages
      */
     function run() external ScaffoldEthDeployerRunner {
-        new YourContract(deployer);
+        HonkVerifier verifier = new HonkVerifier();
+        Voting voting = new Voting(
+            deployer,
+            address(verifier),
+            "Should we build zk apps?"
+        );
+
+        voting.transferOwnership(0x7874665BF5Da57D222de629d4C6ba9ae619076F0);
+        //new YourContract(deployer);
     }
 }

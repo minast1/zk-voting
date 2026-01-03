@@ -1,45 +1,81 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Input } from "./ui/input";
-import { AlertCircle, CheckCircle, Eye, EyeOff, Shield } from "lucide-react";
-import { VoterIdentity, getAllowedVoters, hashVoterId, isVoterAllowed, registerVoter } from "~~/lib/voting";
+//import { Input } from "./ui/input";
+import { Spinner } from "./ui/spinner";
+import { Fr } from "@aztec/bb.js";
+import { CheckCircle, Shield } from "lucide-react";
+import { poseidon2 } from "poseidon-lite";
+import { toHex } from "viem";
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+//import useVoterData from "~~/hooks/useVoterData";
+import { CommitmentData, useChallengeStore } from "~~/services/store/zk-store";
 
 interface VoterRegistrationProps {
-  onRegister: (identity: VoterIdentity) => void;
+  leafEvents: any[];
 }
 
-export function VoterRegistration({ onRegister }: VoterRegistrationProps) {
-  const [uniqueId, setUniqueId] = useState("");
-  const [showId, setShowId] = useState(false);
-  const [error, setError] = useState("");
-  const [previewHash, setPreviewHash] = useState("");
+const generateCommitment = async (): Promise<CommitmentData> => {
+  const nullif = BigInt(Fr.random().toString());
+  const sec = BigInt(Fr.random().toString());
+  const comm = poseidon2([nullif, sec]);
+  const commitment = toHex(comm, { size: 32 });
+  const nullifier = toHex(nullif, { size: 32 });
+  const secret = toHex(sec, { size: 32 });
 
-  const handleIdChange = (value: string) => {
-    setUniqueId(value);
-    setError("");
-    if (value.length >= 3) {
-      setPreviewHash(hashVoterId(value));
-    } else {
-      setPreviewHash("");
+  return { commitment, nullifier, secret };
+};
+export function VoterRegistration({ leafEvents }: VoterRegistrationProps) {
+  //const { canRegister } = useVoterData();
+  const [isGenerating, setIsGenerating] = useState(false);
+  // const [isInserting, setIsInserting] = useState(false);
+  // const [error, setError] = useState("");
+  const setCommitmentData = useChallengeStore(state => state.setCommitmentData);
+  const commitmentData = useChallengeStore(state => state.commitmentData);
+  const updateCommitmentIndex = useChallengeStore(state => state.updateCommitmentIndex);
+  const { writeContractAsync, isPending } = useScaffoldWriteContract({
+    contractName: "Voting",
+  });
+  const handleGenerateCommitment = async (): Promise<CommitmentData> => {
+    setIsGenerating(true);
+    try {
+      const commitment = await generateCommitment();
+      setCommitmentData(commitment);
+      return commitment;
+      setIsGenerating(false);
+    } catch (error) {
+      console.log("Error generating commitment:", error);
+      throw error;
+    } finally {
+      setIsGenerating(false);
     }
   };
 
-  const handleRegister = () => {
-    if (uniqueId.length < 6) {
-      setError("Please enter at least 6 characters for your unique identifier");
+  const handleRegister = async () => {
+    const commitmentData = await handleGenerateCommitment();
+    if (!commitmentData) {
+      console.error("Please generate a commitment first");
       return;
     }
-
-    // Check if allowed voters list exists and if this voter is on it
-    const allowedVoters = getAllowedVoters();
-    if (allowedVoters.length > 0 && !isVoterAllowed(uniqueId)) {
-      setError("You are not on the allowed voters list. Contact an administrator.");
-      return;
+    try {
+      await writeContractAsync(
+        {
+          functionName: "register",
+          args: [BigInt(commitmentData.commitment)],
+        },
+        {
+          blockConfirmations: 1,
+          onBlockConfirmation: () => {
+            if (leafEvents) {
+              const leafIndex = leafEvents.length;
+              updateCommitmentIndex(leafIndex);
+            }
+          },
+        },
+      );
+    } catch (error) {
+      console.error("Error registering:", error);
     }
-
-    const identity = registerVoter(uniqueId);
-    onRegister(identity);
   };
 
   return (
@@ -54,7 +90,7 @@ export function VoterRegistration({ onRegister }: VoterRegistrationProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="space-y-2">
+        {/* <div className="space-y-2">
           <label className="text-sm font-medium text-muted-foreground">Unique Identifier</label>
           <div className="relative">
             <Input
@@ -78,12 +114,12 @@ export function VoterRegistration({ onRegister }: VoterRegistrationProps) {
               {error}
             </p>
           )}
-        </div>
+        </div> */}
 
-        {previewHash && (
+        {commitmentData && (
           <div className="p-3 rounded-lg bg-secondary/30 border border-border/50">
             <p className="text-xs text-muted-foreground mb-1">Your anonymous voter ID:</p>
-            <p className="font-mono text-sm text-primary break-all">{previewHash}</p>
+            <p className="font-mono text-sm text-primary break-all">{commitmentData.commitment}</p>
           </div>
         )}
 
@@ -97,8 +133,15 @@ export function VoterRegistration({ onRegister }: VoterRegistrationProps) {
           </div>
         </div>
 
-        <Button onClick={handleRegister} className="w-full" size="lg" disabled={uniqueId.length < 6}>
-          Register & Start Voting
+        <Button onClick={handleRegister} className="w-full" size="lg" disabled={isGenerating || isPending}>
+          {isGenerating || isPending ? (
+            <>
+              <Spinner />
+              Registering...
+            </>
+          ) : (
+            "Register & Start Voting"
+          )}
         </Button>
       </CardContent>
     </Card>
