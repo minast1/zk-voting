@@ -30,7 +30,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 6,
+      deployedOnBlock: 1,
     },
     LeanIMT: {
       address: "0x916f8460e28b1bcf957c4d36a3e184abe9ede3cf",
@@ -62,10 +62,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 8,
+      deployedOnBlock: 2,
     },
     Voting: {
-      address: "0x196dbcbb54b8ec4958c959d8949ebfe87ac2aaaf",
+      address: "0x8ce361602b935680e8dec218b820ff5056beb7af",
       abi: [
         {
           type: "constructor",
@@ -412,7 +412,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 8,
+      deployedOnBlock: 3,
     },
   },
 } as const;

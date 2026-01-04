@@ -1,12 +1,12 @@
+"use client";
+
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 //import { Input } from "./ui/input";
 import { Spinner } from "./ui/spinner";
-import { Fr } from "@aztec/bb.js";
 import { CheckCircle, Shield } from "lucide-react";
-import { poseidon2 } from "poseidon-lite";
-import { toHex } from "viem";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 //import useVoterData from "~~/hooks/useVoterData";
 import { CommitmentData, useChallengeStore } from "~~/services/store/zk-store";
@@ -16,33 +16,30 @@ interface VoterRegistrationProps {
 }
 
 const generateCommitment = async (): Promise<CommitmentData> => {
-  const nullif = BigInt(Fr.random().toString());
-  const sec = BigInt(Fr.random().toString());
-  const comm = poseidon2([nullif, sec]);
-  const commitment = toHex(comm, { size: 32 });
-  const nullifier = toHex(nullif, { size: 32 });
-  const secret = toHex(sec, { size: 32 });
-
+  const res = await fetch("/api/commitment", { method: "POST" });
+  const { commitment, nullifier, secret } = await res.json();
   return { commitment, nullifier, secret };
 };
-export function VoterRegistration({ leafEvents }: VoterRegistrationProps) {
-  //const { canRegister } = useVoterData();
+
+export const VoterRegistration = ({ leafEvents }: VoterRegistrationProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
-  // const [isInserting, setIsInserting] = useState(false);
-  // const [error, setError] = useState("");
+  const [isRegistering, setIsRegistering] = useState(false);
+  const router = useRouter();
   const setCommitmentData = useChallengeStore(state => state.setCommitmentData);
   const commitmentData = useChallengeStore(state => state.commitmentData);
   const updateCommitmentIndex = useChallengeStore(state => state.updateCommitmentIndex);
-  const { writeContractAsync, isPending } = useScaffoldWriteContract({
+  const { writeContractAsync } = useScaffoldWriteContract({
     contractName: "Voting",
   });
+
   const handleGenerateCommitment = async (): Promise<CommitmentData> => {
     setIsGenerating(true);
     try {
       const commitment = await generateCommitment();
       setCommitmentData(commitment);
-      return commitment;
+
       setIsGenerating(false);
+      return commitment;
     } catch (error) {
       console.log("Error generating commitment:", error);
       throw error;
@@ -53,11 +50,13 @@ export function VoterRegistration({ leafEvents }: VoterRegistrationProps) {
 
   const handleRegister = async () => {
     const commitmentData = await handleGenerateCommitment();
+
     if (!commitmentData) {
       console.error("Please generate a commitment first");
       return;
     }
     try {
+      setIsRegistering(true);
       await writeContractAsync(
         {
           functionName: "register",
@@ -69,12 +68,15 @@ export function VoterRegistration({ leafEvents }: VoterRegistrationProps) {
             if (leafEvents) {
               const leafIndex = leafEvents.length;
               updateCommitmentIndex(leafIndex);
+              setIsRegistering(false);
+              router.push(`/dashboard`);
             }
           },
         },
       );
     } catch (error) {
       console.error("Error registering:", error);
+      setIsRegistering(false);
     }
   };
 
@@ -133,11 +135,16 @@ export function VoterRegistration({ leafEvents }: VoterRegistrationProps) {
           </div>
         </div>
 
-        <Button onClick={handleRegister} className="w-full" size="lg" disabled={isGenerating || isPending}>
-          {isGenerating || isPending ? (
+        <Button onClick={handleRegister} className="w-full" size="lg" disabled={isGenerating || isRegistering}>
+          {isGenerating ? (
             <>
               <Spinner />
-              Registering...
+              <span className="ml-2">Generating Commitment...</span>
+            </>
+          ) : isRegistering ? (
+            <>
+              <Spinner />
+              <span className="ml-2">Registering Voter...</span>
             </>
           ) : (
             "Register & Start Voting"
@@ -146,4 +153,4 @@ export function VoterRegistration({ leafEvents }: VoterRegistrationProps) {
       </CardContent>
     </Card>
   );
-}
+};

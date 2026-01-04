@@ -2,6 +2,7 @@
 
 import React from "react";
 import { AddVoterDialog } from "./dialogs/add-voter";
+import { FaucetButton, RainbowKitCustomConnectButton } from "./scaffold-eth";
 //import Image from "next/image";
 //import Link from "next/link";
 //import { usePathname } from "next/navigation";
@@ -10,6 +11,8 @@ import { AddVoterDialog } from "./dialogs/add-voter";
 //import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { Button } from "./ui/button";
 import { LogOut, Shield, User } from "lucide-react";
+import { hardhat } from "viem/chains";
+import { useTargetNetwork } from "~~/hooks/scaffold-eth";
 import { VoterIdentity } from "~~/lib/voting";
 
 //import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
@@ -66,8 +69,8 @@ interface HeaderProps {
   onLogout: () => void;
 }
 export const Header = ({ voter, onLogout }: HeaderProps) => {
-  // const { targetNetwork } = useTargetNetwork();
-  // const isLocalNetwork = targetNetwork.id === hardhat.id;
+  const { targetNetwork } = useTargetNetwork();
+  const isLocalNetwork = targetNetwork.id === hardhat.id;
 
   // const burgerMenuRef = useRef<HTMLDetailsElement>(null);
   // useOutsideClick(burgerMenuRef, () => {
@@ -89,7 +92,11 @@ export const Header = ({ voter, onLogout }: HeaderProps) => {
 
         <div className="flex items-center gap-4">
           <AddVoterDialog />
-
+          <div className="flex items-center gap-3">
+            <RainbowKitCustomConnectButton />
+            {isLocalNetwork && <FaucetButton />}
+            {/* <SwitchTheme /> */}
+          </div>
           {voter && (
             <>
               <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground">
