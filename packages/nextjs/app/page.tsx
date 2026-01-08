@@ -2,7 +2,6 @@
 
 // import Link from "next/link";
 // import { Address } from "@scaffold-ui/components";
-import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useScaffoldEventHistory } from "../hooks/scaffold-eth/useScaffoldEventHistory";
 // import { hardhat } from "viem/chains";
@@ -11,8 +10,8 @@ import { useScaffoldEventHistory } from "../hooks/scaffold-eth/useScaffoldEventH
 // import { useTargetNetwork } from "~~/hooks/scaffold-eth";
 import { Eye, Lock, ShieldCheck, Vote } from "lucide-react";
 import type { NextPage } from "next";
+
 //import { VoterRegistration } from "~~/components/voter-registration";
-import { Poll, VoterIdentity, getPolls, getVoterIdentity } from "~~/lib/voting";
 
 const VoterRegistration = dynamic(() => import("~~/components/voter-registration").then(mod => mod.VoterRegistration), {
   ssr: false,
@@ -24,17 +23,6 @@ const Home: NextPage = () => {
     watch: true,
     enabled: true,
   });
-
-  const [, setVoter] = useState<VoterIdentity | null>(null);
-  const [, setPolls] = useState<Poll[]>([]);
-
-  useEffect(() => {
-    const storedVoter = getVoterIdentity();
-    if (storedVoter) {
-      setVoter(storedVoter);
-    }
-    setPolls(getPolls());
-  }, []);
 
   return (
     <>

@@ -234,6 +234,7 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  --gradient-glass: linear-gradient(135deg, oklch(0.28 0.0377 266.18 / 0.5), oklch(0.22 0.028 266 / 0.3));
 }
 
 /*

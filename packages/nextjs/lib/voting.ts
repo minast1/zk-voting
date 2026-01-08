@@ -8,6 +8,9 @@ export interface Poll {
   createdBy: string;
   yesVotes: number;
   noVotes: number;
+  size: number;
+  depth: number;
+  root: string;
   voters: string[]; // Hashed voter IDs (anonymized)
   status: "active" | "closed";
   expiresAt?: number;
@@ -38,62 +41,10 @@ export function generateVoteCommitment(voterId: string, pollId: string): string 
 }
 
 // ZK Proof types and functions (simulated for demo)
-export interface ZKProof {
-  commitment: string;
-  nullifier: string;
-  proof: string;
-  publicSignals: string[];
-  timestamp: number;
-  verified: boolean;
-}
 
 // Generate a simulated ZK proof for voting eligibility
-export async function generateZKProof(voterId: string, pollId: string): Promise<ZKProof> {
-  // Simulate proof generation delay (real ZK proofs take time)
-  await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000));
-
-  const commitment = hashVoterId(`${voterId}-commitment-${pollId}`);
-  const nullifier = hashVoterId(`${voterId}-nullifier-${pollId}-${Date.now()}`);
-
-  // Simulate proof data (in production, this would be actual ZK-SNARK proof)
-  const proof = Array.from({ length: 8 }, () => Math.random().toString(16).slice(2, 10)).join("");
-
-  const publicSignals = [hashVoterId(pollId), commitment.slice(0, 8), nullifier.slice(0, 8)];
-
-  return {
-    commitment,
-    nullifier,
-    proof,
-    publicSignals,
-    timestamp: Date.now(),
-    verified: false,
-  };
-}
 
 // Verify a ZK proof (simulated verification)
-export async function verifyZKProof(proof: ZKProof, voterId: string, pollId: string): Promise<boolean> {
-  // Simulate verification delay
-  await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 500));
-
-  // Verify the commitment matches
-  const expectedCommitment = hashVoterId(`${voterId}-commitment-${pollId}`);
-  if (proof.commitment !== expectedCommitment) {
-    return false;
-  }
-
-  // Verify the proof is recent (within 5 minutes)
-  if (Date.now() - proof.timestamp > 5 * 60 * 1000) {
-    return false;
-  }
-
-  // Verify public signals
-  const expectedPollSignal = hashVoterId(pollId);
-  if (proof.publicSignals[0] !== expectedPollSignal) {
-    return false;
-  }
-
-  return true;
-}
 
 // Check if a voter has already voted in a poll
 export function hasVotedInPoll(voterHash: string, poll: Poll): boolean {
@@ -141,54 +92,20 @@ export function savePoll(poll: Poll): void {
   localStorage.setItem(POLLS_KEY, JSON.stringify(polls));
 }
 
-export function createPoll(question: string, creatorHash: string): Poll {
-  const poll: Poll = {
-    id: crypto.randomUUID(),
-    question,
-    createdAt: Date.now(),
-    createdBy: creatorHash,
-    yesVotes: 0,
-    noVotes: 0,
-    voters: [],
-    status: "active",
-  };
-  savePoll(poll);
-  return poll;
-}
-
-export function castVote(pollId: string, voterHash: string, vote: "yes" | "no"): { success: boolean; message: string } {
-  const polls = getPolls();
-  const poll = polls.find(p => p.id === pollId);
-
-  if (!poll) {
-    return { success: false, message: "Poll not found" };
-  }
-
-  if (poll.status !== "active") {
-    return { success: false, message: "Poll is no longer active" };
-  }
-
-  if (hasVotedInPoll(voterHash, poll)) {
-    return { success: false, message: "You have already voted in this poll" };
-  }
-
-  // Record the vote
-  if (vote === "yes") {
-    poll.yesVotes++;
-  } else {
-    poll.noVotes++;
-  }
-  poll.voters.push(voterHash);
-
-  savePoll(poll);
-  return { success: true, message: "Vote cast successfully!" };
-}
-
-// Voter identity management
-export function getVoterIdentity(): VoterIdentity | null {
-  const stored = localStorage.getItem(VOTER_KEY);
-  return stored ? JSON.parse(stored) : null;
-}
+// export function createPoll(question: string, creatorHash: string): Poll {
+//   const poll: Poll = {
+//     id: crypto.randomUUID(),
+//     question,
+//     createdAt: Date.now(),
+//     createdBy: creatorHash,
+//     yesVotes: 0,
+//     noVotes: 0,
+//     voters: [],
+//     status: "active",
+//   };
+//   savePoll(poll);
+//   return poll;
+// }
 
 export function registerVoter(uniqueId: string): VoterIdentity {
   const hashedId = hashVoterId(uniqueId);

@@ -1,22 +1,31 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useScaffoldReadContract } from "./scaffold-eth";
 import { useAccount } from "wagmi";
 
 const useVoterData = () => {
-  const { address: userAddress, isConnected } = useAccount();
+  const { address: userAddress } = useAccount();
+  const [canRegister, setCanRegister] = useState(false);
+  const [canVote, setCanVote] = useState(false);
+  const [registered, setRegistered] = useState(false);
   const { data: voterData } = useScaffoldReadContract({
     contractName: "Voting",
     functionName: "getVoterData",
     args: [userAddress],
   });
-  const isVoter = voterData?.at(0);
 
-  const hasRegistered = voterData?.at(1);
-  const canRegister = Boolean(isConnected && !isVoter && !hasRegistered);
-  const registered = Boolean(isConnected && hasRegistered);
-  const canVote = Boolean(isConnected && !isVoter && hasRegistered);
+  useEffect(() => {
+    if (voterData) {
+      const isVoter = Boolean(voterData[0]);
+      const hasRegistered = Boolean(voterData[1]);
+      setCanRegister(Boolean(!isVoter && !hasRegistered));
+      setCanVote(Boolean(!isVoter && hasRegistered));
+      setRegistered(Boolean(hasRegistered));
+    }
+  }, [voterData]);
 
+  //console.log({ canRegister, registered, canVote });
   return {
     canRegister,
     registered,

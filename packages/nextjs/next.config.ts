@@ -14,6 +14,13 @@ const nextConfig: NextConfig = {
     config.externals.push("pino-pretty", "lokijs", "encoding");
     return config;
   },
+  serverExternalPackages: [
+    "@noir-lang/noir_js",
+    "@noir-lang/backend_barretenberg",
+    "@noir-lang/noirc_abi",
+    "@aztec/bb.js",
+    "@noir-lang/noirc_abi",
+  ],
 };
 
 const isIpfs = process.env.NEXT_PUBLIC_IPFS_BUILD === "true";

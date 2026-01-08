@@ -60,6 +60,7 @@ export const VoterRegistration = ({ leafEvents }: VoterRegistrationProps) => {
       await writeContractAsync(
         {
           functionName: "register",
+
           args: [BigInt(commitmentData.commitment)],
         },
         {
@@ -92,32 +93,6 @@ export const VoterRegistration = ({ leafEvents }: VoterRegistrationProps) => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* <div className="space-y-2">
-          <label className="text-sm font-medium text-muted-foreground">Unique Identifier</label>
-          <div className="relative">
-            <Input
-              type={showId ? "text" : "password"}
-              placeholder="e.g., email, national ID, passport number..."
-              value={uniqueId}
-              onChange={e => handleIdChange(e.target.value)}
-              className="pr-10 bg-secondary/50 border-border focus:border-primary"
-            />
-            <button
-              type="button"
-              onClick={() => setShowId(!showId)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {showId ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            </button>
-          </div>
-          {error && (
-            <p className="text-sm text-destructive flex items-center gap-1">
-              <AlertCircle className="w-4 h-4" />
-              {error}
-            </p>
-          )}
-        </div> */}
-
         {commitmentData && (
           <div className="p-3 rounded-lg bg-secondary/30 border border-border/50">
             <p className="text-xs text-muted-foreground mb-1">Your anonymous voter ID:</p>

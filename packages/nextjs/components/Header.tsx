@@ -13,7 +13,6 @@ import { Button } from "./ui/button";
 import { LogOut, Shield, User } from "lucide-react";
 import { hardhat } from "viem/chains";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth";
-import { VoterIdentity } from "~~/lib/voting";
 
 //import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
 
@@ -65,7 +64,7 @@ import { VoterIdentity } from "~~/lib/voting";
  * Site header
  */
 interface HeaderProps {
-  voter: VoterIdentity | null;
+  voter: boolean | null;
   onLogout: () => void;
 }
 export const Header = ({ voter, onLogout }: HeaderProps) => {

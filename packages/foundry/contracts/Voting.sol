@@ -182,7 +182,8 @@ contract Voting is Ownable {
             uint256 noVotes,
             uint256 size,
             uint256 depth,
-            uint256 root
+            uint256 root,
+            uint256 timestamp
         )
     {
         question = s_question;
@@ -193,6 +194,7 @@ contract Voting is Ownable {
         size = s_tree.size;
         depth = s_tree.depth;
         root = s_tree.root();
+        timestamp = block.timestamp;
     }
 
     function getVoterData(
