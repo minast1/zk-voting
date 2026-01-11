@@ -26,11 +26,7 @@ contract DeployYourContract is ScaffoldETHDeploy {
      */
     function run() external ScaffoldEthDeployerRunner {
         HonkVerifier verifier = new HonkVerifier();
-        Voting voting = new Voting(
-            deployer,
-            address(verifier),
-            "Should we build zk apps?"
-        );
+        Voting voting = new Voting(deployer, address(verifier));
 
         voting.transferOwnership(0x7874665BF5Da57D222de629d4C6ba9ae619076F0);
         //new YourContract(deployer);

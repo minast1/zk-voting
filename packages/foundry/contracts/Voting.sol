@@ -3,8 +3,8 @@ pragma solidity >=0.8.0 <0.9.0;
 
 import {LeanIMT, LeanIMTData} from "@zk-kit/lean-imt.sol/LeanIMT.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-
-import "./Verifier.sol";
+/// Checkpoint 6 //////
+import {IVerifier} from "./Verifier.sol";
 
 contract Voting is Ownable {
     using LeanIMT for LeanIMTData;
@@ -19,45 +19,89 @@ contract Voting is Ownable {
     error Voting__NotAllowedToVote();
     error Voting__EmptyTree();
     error Voting__InvalidRoot();
+    error Voting__InvalidTimeWindow();
+    error Voting__InvalidPoll();
+    error Voting__AlreadyRegistered();
+    error Voting__VotingClosed();
+
+    struct Poll {
+        string question;
+        uint256 yesVotes;
+        uint256 noVotes;
+        uint256 startTime;
+        uint256 endTime;
+        LeanIMTData tree;
+        mapping(bytes32 => bool) nullifierHashes;
+        mapping(uint256 => bool) commitments;
+        bool exists;
+    }
 
     ///////////////////////
     /// State Variables ///
     ///////////////////////
 
-    string private s_question;
-    mapping(address => bool) private s_voters;
-    mapping(bytes32 => bool) private s_nullifierHashes;
+    uint256 private s_pollCount;
+    mapping(uint256 => Poll) private s_polls;
 
-    uint256 private s_yesVotes;
-    uint256 private s_noVotes;
+    mapping(address => bool) private s_voters;
+    mapping(uint256 => mapping(address => bool)) private s_hasRegistered;
+
     IVerifier private i_verifier;
-    uint256 private deploymentId = 1;
-    /// Checkpoint 2 //////
-    LeanIMTData private s_tree;
-    mapping(address => bool) private s_hasRegistered;
-    mapping(uint256 => bool) private s_commitments;
+
+    /// Checkpoint 6 //////
+
+    //////////////
+    /// Events ///
+    //////////////
 
     event VoterAdded(address indexed voter);
     event NewLeaf(uint256 index, uint256 value);
+    event CommitmentRegistered(
+        uint256 indexed pollId,
+        uint256 index,
+        uint256 value
+    );
+    event PollCreated(
+        uint256 indexed pollId,
+        string question,
+        uint256 startTime,
+        uint256 endTime
+    );
     event VoteCast(
+        uint256 indexed pollId,
         bytes32 indexed nullifierHash,
-        address indexed voter,
         bool vote,
         uint256 timestamp,
         uint256 totalYes,
         uint256 totalNo
     );
+    //////////////////
+    ////Constructor///
+    //////////////////
 
-    constructor(
-        address _owner,
-        address _verifier,
-        string memory _question
-    ) Ownable(_owner) {
-        s_question = _question;
-        /// Checkpoint 6 //////
+    constructor(address _owner, address _verifier) Ownable(_owner) {
         i_verifier = IVerifier(_verifier);
     }
 
+    //////////////////
+    /// Functions ///
+    //////////////////
+    function createPoll(
+        string calldata question,
+        uint256 startTime,
+        uint256 endTime
+    ) external onlyOwner returns (uint256 pollId) {
+        if (startTime > endTime || endTime < block.timestamp) {
+            revert Voting__InvalidTimeWindow();
+        }
+        pollId = ++s_pollCount;
+        Poll storage poll = s_polls[pollId];
+        poll.question = question;
+        poll.startTime = startTime;
+        poll.endTime = endTime;
+        poll.exists = true;
+        emit PollCreated(pollId, question, startTime, endTime);
+    }
     /**
      * @notice Batch updates the allowlist of voter EOAs
      * @dev Only the contract owner can call this function. Emits `VoterAdded` for each updated entry.
@@ -86,18 +130,26 @@ contract Voting is Ownable {
      *      same commitment has been previously inserted. Emits `NewLeaf`.
      * @param _commitment The Poseidon-based commitment to insert into the IMT
      */
-    function register(uint256 _commitment) public {
+    function register(uint256 _commitment, uint256 pollId) public {
+        Poll storage poll = s_polls[pollId];
+        if (!poll.exists) {
+            revert Voting__InvalidPoll();
+        }
         // check if the caller is not already registered
-        if (!s_voters[msg.sender] || s_hasRegistered[msg.sender]) {
+        if (!s_voters[msg.sender]) {
             revert Voting__NotAllowedToVote();
         }
-        if (s_commitments[_commitment]) {
+        if (s_hasRegistered[pollId][msg.sender]) {
+            revert Voting__AlreadyRegistered();
+        }
+        if (poll.commitments[_commitment]) {
             revert Voting__CommitmentAlreadyAdded(_commitment);
         }
-        s_hasRegistered[msg.sender] = true;
-        s_commitments[_commitment] = true;
-        s_tree.insert(_commitment);
-        emit NewLeaf(s_tree.size - 1, _commitment);
+        s_hasRegistered[pollId][msg.sender] = true;
+        poll.commitments[_commitment] = true;
+
+        poll.tree.insert(_commitment);
+        emit CommitmentRegistered(pollId, poll.tree.size - 1, _commitment);
     }
 
     /**
@@ -112,18 +164,33 @@ contract Voting is Ownable {
      * @param _depth Tree depth used by the circuit
      */
     function vote(
-        bytes memory _proof,
+        uint256 pollId,
+        bytes calldata _proof,
         bytes32 _nullifierHash,
         bytes32 _root,
         bytes32 _vote,
         bytes32 _depth
     ) public {
+        Poll storage poll = s_polls[pollId];
+        if (!poll.exists) {
+            revert Voting__InvalidPoll();
+        }
+        if (
+            block.timestamp < poll.startTime || block.timestamp > poll.endTime
+        ) {
+            revert Voting__VotingClosed();
+        }
+        /// Checkpoint 6 //////
         if (_root == bytes32(0)) {
             revert Voting__EmptyTree();
         }
-        if (_root != bytes32(s_tree.root())) {
+        if (_root != bytes32(poll.tree.root())) {
             revert Voting__InvalidRoot();
         }
+
+        if (poll.nullifierHashes[_nullifierHash])
+            revert Voting__NullifierHashAlreadyUsed(_nullifierHash);
+
         bytes32[] memory publicInputs = new bytes32[](4);
         publicInputs[0] = _nullifierHash;
         publicInputs[1] = _root;
@@ -133,56 +200,64 @@ contract Voting is Ownable {
         if (!i_verifier.verify(_proof, publicInputs)) {
             revert Voting__InvalidProof();
         }
-        if (s_nullifierHashes[_nullifierHash]) {
-            revert Voting__NullifierHashAlreadyUsed(_nullifierHash);
-        }
+        poll.nullifierHashes[_nullifierHash] = true;
 
-        s_nullifierHashes[_nullifierHash] = true;
         if (_vote == bytes32(uint256(1))) {
-            s_yesVotes++;
+            poll.yesVotes++;
         } else {
-            s_noVotes++;
+            poll.noVotes++;
         }
         emit VoteCast(
+            pollId,
             _nullifierHash,
-            msg.sender,
             _vote == bytes32(uint256(1)),
             block.timestamp,
-            s_yesVotes,
-            s_noVotes
+            poll.yesVotes,
+            poll.noVotes
         );
     }
 
-    function getVotingData()
-        public
+    /////////////////////////
+    /// Getter Functions ///
+    ////////////////////////
+    function getPoll(
+        uint256 pollId
+    )
+        external
         view
         returns (
             string memory question,
-            address contractOwner,
             uint256 yesVotes,
             uint256 noVotes,
+            uint256 startTime,
+            uint256 endTime,
             uint256 size,
             uint256 depth,
-            uint256 root,
-            uint256 timestamp
+            uint256 root
         )
     {
-        question = s_question;
-        contractOwner = owner();
-        yesVotes = s_yesVotes;
-        noVotes = s_noVotes;
-        /// Checkpoint 2 //////
-        size = s_tree.size;
-        depth = s_tree.depth;
-        root = s_tree.root();
-        timestamp = block.timestamp;
+        Poll storage poll = s_polls[pollId];
+        if (!poll.exists) {
+            revert Voting__InvalidPoll();
+        }
+        return (
+            poll.question,
+            poll.yesVotes,
+            poll.noVotes,
+            poll.startTime,
+            poll.endTime,
+            poll.tree.size,
+            poll.tree.depth,
+            poll.tree.root()
+        );
     }
 
     function getVoterData(
-        address _voter
+        address _voter,
+        uint256 pollId
     ) public view returns (bool voter, bool registered) {
         voter = s_voters[_voter];
         // /// Checkpoint 2 //////
-        registered = s_hasRegistered[_voter];
+        registered = s_hasRegistered[pollId][_voter];
     }
 }

@@ -5,7 +5,6 @@ libs = ['lib', 'node_modules']
 fs_permissions = [{ access = "read-write", path = "./"}]
 #solc = "0.8.21" 
 optimizer = true
-evm_version = "cancun"
 optimizer_runs = 1
 via_ir = false
 bytecode_hash = "none"
