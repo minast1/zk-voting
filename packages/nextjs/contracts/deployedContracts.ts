@@ -420,6 +420,421 @@ const deployedContracts = {
       deployedOnBlock: 2,
     },
   },
+  11155111: {
+    PoseidonT3: {
+      address: "0xf3932039eb620c8d5f3acb5d26b07dba9243e296",
+      abi: [
+        {
+          type: "function",
+          name: "hash",
+          inputs: [
+            {
+              name: "",
+              type: "uint256[2]",
+              internalType: "uint256[2]",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "pure",
+        },
+      ],
+      inheritedFunctions: {},
+      deployedOnBlock: 10018853,
+    },
+    LeanIMT: {
+      address: "0x00a1895eddeec621e7a0eb02e8d63649f584ad61",
+      abi: [
+        {
+          type: "error",
+          name: "LeafAlreadyExists",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "LeafCannotBeZero",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "LeafDoesNotExist",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "LeafGreaterThanSnarkScalarField",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "WrongSiblingNodes",
+          inputs: [],
+        },
+      ],
+      inheritedFunctions: {},
+      deployedOnBlock: 10018853,
+    },
+    Voting: {
+      address: "0x6e5136a3f0a47c87458a7fe7f0a5a7e6c62e29ef",
+      abi: [
+        {
+          type: "constructor",
+          inputs: [
+            {
+              name: "_owner",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "_verifier",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "_question",
+              type: "string",
+              internalType: "string",
+            },
+          ],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "addVoters",
+          inputs: [
+            {
+              name: "voters",
+              type: "address[]",
+              internalType: "address[]",
+            },
+            {
+              name: "statuses",
+              type: "bool[]",
+              internalType: "bool[]",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "getVoterData",
+          inputs: [
+            {
+              name: "_voter",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [
+            {
+              name: "voter",
+              type: "bool",
+              internalType: "bool",
+            },
+            {
+              name: "registered",
+              type: "bool",
+              internalType: "bool",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "getVotingData",
+          inputs: [],
+          outputs: [
+            {
+              name: "question",
+              type: "string",
+              internalType: "string",
+            },
+            {
+              name: "contractOwner",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "yesVotes",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "noVotes",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "size",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "depth",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "root",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "timestamp",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "owner",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "register",
+          inputs: [
+            {
+              name: "_commitment",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "renounceOwnership",
+          inputs: [],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "transferOwnership",
+          inputs: [
+            {
+              name: "newOwner",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "vote",
+          inputs: [
+            {
+              name: "_proof",
+              type: "bytes",
+              internalType: "bytes",
+            },
+            {
+              name: "_nullifierHash",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+            {
+              name: "_root",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+            {
+              name: "_vote",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+            {
+              name: "_depth",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "event",
+          name: "NewLeaf",
+          inputs: [
+            {
+              name: "index",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+            {
+              name: "value",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
+          name: "OwnershipTransferred",
+          inputs: [
+            {
+              name: "previousOwner",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "newOwner",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
+          name: "VoteCast",
+          inputs: [
+            {
+              name: "nullifierHash",
+              type: "bytes32",
+              indexed: true,
+              internalType: "bytes32",
+            },
+            {
+              name: "voter",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "vote",
+              type: "bool",
+              indexed: false,
+              internalType: "bool",
+            },
+            {
+              name: "timestamp",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+            {
+              name: "totalYes",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+            {
+              name: "totalNo",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
+          name: "VoterAdded",
+          inputs: [
+            {
+              name: "voter",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "error",
+          name: "OwnableInvalidOwner",
+          inputs: [
+            {
+              name: "owner",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "OwnableUnauthorizedAccount",
+          inputs: [
+            {
+              name: "account",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "Voting__CommitmentAlreadyAdded",
+          inputs: [
+            {
+              name: "commitment",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "Voting__EmptyTree",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "Voting__InvalidProof",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "Voting__InvalidRoot",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "Voting__NotAllowedToVote",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "Voting__NullifierHashAlreadyUsed",
+          inputs: [
+            {
+              name: "nullifierHash",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+        },
+      ],
+      inheritedFunctions: {},
+      deployedOnBlock: 10019180,
+    },
+  },
 } as const;
 
 export default deployedContracts satisfies GenericContractsDeclaration;

@@ -58,7 +58,7 @@ contract VotingContractTest is Test {
         vm.prank(voter1);
         voting.register(DUMMY_COMMITMENT);
 
-        (, , , , uint256 size, , ) = voting.getVotingData();
+        (, , , , uint256 size, , , ) = voting.getVotingData();
         assertEq(size, 1);
     }
 
@@ -88,13 +88,14 @@ contract VotingContractTest is Test {
         vm.startPrank(voter1);
         voting.register(DUMMY_COMMITMENT);
 
-        (, , , , , , uint256 root) = voting.getVotingData();
+        (, , , , , , uint256 root, ) = voting.getVotingData();
         bytes32 voteYes = bytes32(uint256(1));
         bytes32 depth = bytes32(uint256(16));
         bytes memory proof = hex"deadbeef";
 
         voting.vote(proof, DUMMY_NULLIFIER, bytes32(root), voteYes, depth);
-        (, , uint256 yesVotes, uint256 noVotes, , , ) = voting.getVotingData();
+        (, , uint256 yesVotes, uint256 noVotes, , , , ) = voting
+            .getVotingData();
         assertEq(yesVotes, 1);
         assertEq(noVotes, 0);
     }
@@ -102,7 +103,7 @@ contract VotingContractTest is Test {
     function testCannotReuseNullifierHash() public {
         testSuccessfullVoteYes();
 
-        (, , , , , , uint256 root) = voting.getVotingData();
+        (, , , , , , uint256 root, ) = voting.getVotingData();
         bytes memory proof = hex"deadbeef";
 
         vm.expectRevert(
@@ -134,7 +135,7 @@ contract VotingContractTest is Test {
 
         verifier.setResult(false);
 
-        (, , , , , , uint256 root) = voting.getVotingData();
+        (, , , , , , uint256 root, ) = voting.getVotingData();
         vm.startPrank(voter1);
         vm.expectRevert(Voting.Voting__InvalidProof.selector);
 

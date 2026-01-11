@@ -25,5 +25,17 @@
   },
   "lib/zk-kit.solidity": {
     "rev": "a171c845ec7fdc50cdd1fe96c14c27d707cdfbed"
+  },
+  "packages/foundry/lib/forge-std": {
+    "rev": "7117c90c8cf6c68e5acce4f09a6b24715cea4de6"
+  },
+  "packages/foundry/lib/openzeppelin-contracts": {
+    "rev": "fcbae5394ae8ad52d8e580a3477db99814b9d565"
+  },
+  "packages/foundry/lib/solidity-bytes-utils": {
+    "rev": "f4413cd6137b78403e3a1156bee6aceab46b46fa"
+  },
+  "packages/foundry/lib/zk-kit.solidity": {
+    "rev": "a171c845ec7fdc50cdd1fe96c14c27d707cdfbed"
   }
 }

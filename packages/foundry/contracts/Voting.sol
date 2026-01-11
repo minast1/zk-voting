@@ -3,8 +3,8 @@ pragma solidity >=0.8.0 <0.9.0;
 
 import {LeanIMT, LeanIMTData} from "@zk-kit/lean-imt.sol/LeanIMT.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-/// Checkpoint 6 //////
-import {IVerifier} from "./Verifier.sol";
+
+import "./Verifier.sol";
 
 contract Voting is Ownable {
     using LeanIMT for LeanIMTData;
@@ -31,17 +31,11 @@ contract Voting is Ownable {
     uint256 private s_yesVotes;
     uint256 private s_noVotes;
     IVerifier private i_verifier;
-
+    uint256 private deploymentId = 1;
     /// Checkpoint 2 //////
     LeanIMTData private s_tree;
     mapping(address => bool) private s_hasRegistered;
     mapping(uint256 => bool) private s_commitments;
-
-    /// Checkpoint 6 //////
-
-    //////////////
-    /// Events ///
-    //////////////
 
     event VoterAdded(address indexed voter);
     event NewLeaf(uint256 index, uint256 value);
@@ -54,10 +48,6 @@ contract Voting is Ownable {
         uint256 totalNo
     );
 
-    //////////////////
-    ////Constructor///
-    //////////////////
-
     constructor(
         address _owner,
         address _verifier,
@@ -67,10 +57,6 @@ contract Voting is Ownable {
         /// Checkpoint 6 //////
         i_verifier = IVerifier(_verifier);
     }
-
-    //////////////////
-    /// Functions ///
-    //////////////////
 
     /**
      * @notice Batch updates the allowlist of voter EOAs
@@ -132,7 +118,6 @@ contract Voting is Ownable {
         bytes32 _vote,
         bytes32 _depth
     ) public {
-        /// Checkpoint 6 //////
         if (_root == bytes32(0)) {
             revert Voting__EmptyTree();
         }
@@ -167,10 +152,6 @@ contract Voting is Ownable {
             s_noVotes
         );
     }
-
-    /////////////////////////
-    /// Getter Functions ///
-    ////////////////////////
 
     function getVotingData()
         public
