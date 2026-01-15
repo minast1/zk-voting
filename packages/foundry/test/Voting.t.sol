@@ -16,6 +16,8 @@ contract VotingContractTest is Test {
     uint256 constant DUMMY_COMMITMENT = 12345;
     bytes32 constant DUMMY_NULLIFIER = bytes32(uint256(111));
 
+    event AllowListRequest(address indexed requester, uint256 timestamp);
+
     function setUp() public {
         vm.deal(owner, 2 ether);
         verifier = new MockVerifier();
@@ -221,5 +223,14 @@ contract VotingContractTest is Test {
             bytes32(uint256(16))
         );
         vm.stopPrank();
+    }
+
+    function testRequestAllowListEmitsEvent() public {
+        vm.prank(voter2);
+
+        vm.expectEmit(true, false, false, true);
+        emit AllowListRequest(voter2, block.timestamp);
+
+        voting.requestAllowList();
     }
 }
