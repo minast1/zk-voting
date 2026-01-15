@@ -164,14 +164,14 @@ contract Voting is Ownable {
      * @param _depth Tree depth used by the circuit
      */
     function vote(
-        uint256 pollId,
+        uint256 _pollId,
         bytes calldata _proof,
         bytes32 _nullifierHash,
         bytes32 _root,
         bytes32 _vote,
         bytes32 _depth
     ) public {
-        Poll storage poll = s_polls[pollId];
+        Poll storage poll = s_polls[_pollId];
         if (!poll.exists) {
             revert Voting__InvalidPoll();
         }
@@ -191,11 +191,12 @@ contract Voting is Ownable {
         if (poll.nullifierHashes[_nullifierHash])
             revert Voting__NullifierHashAlreadyUsed(_nullifierHash);
 
-        bytes32[] memory publicInputs = new bytes32[](4);
+        bytes32[] memory publicInputs = new bytes32[](5);
         publicInputs[0] = _nullifierHash;
         publicInputs[1] = _root;
         publicInputs[2] = _vote;
         publicInputs[3] = _depth;
+        publicInputs[4] = bytes32(_pollId);
 
         if (!i_verifier.verify(_proof, publicInputs)) {
             revert Voting__InvalidProof();
@@ -208,7 +209,7 @@ contract Voting is Ownable {
             poll.noVotes++;
         }
         emit VoteCast(
-            pollId,
+            _pollId,
             _nullifierHash,
             _vote == bytes32(uint256(1)),
             block.timestamp,

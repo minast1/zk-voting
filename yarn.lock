@@ -26,6 +26,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@aztec/bb.js@npm:0.82.0":
+  version: 0.82.0
+  resolution: "@aztec/bb.js@npm:0.82.0"
+  dependencies:
+    comlink: ^4.4.1
+    commander: ^12.1.0
+    debug: ^4.3.4
+    fflate: ^0.8.0
+    pako: ^2.1.0
+    tslib: ^2.4.0
+  bin:
+    bb.js: dest/node/main.js
+  checksum: c6b47b206288b09cb0cc0cc8b908c722c86c1d8f125eb7d9ce06c7bc8919103b20dfe3255d98f194797fbfc406f4f2188b6456813569f9c851b292d4942b1fff
+  languageName: node
+  linkType: hard
+
 "@aztec/bb.js@npm:0.87.0":
   version: 0.87.0
   resolution: "@aztec/bb.js@npm:0.87.0"
@@ -4033,9 +4049,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@se-2/foundry@workspace:packages/foundry"
   dependencies:
+    "@aztec/bb.js": 0.82.0
+    "@noir-lang/noir_js": 1.0.0-beta.3
+    "@zk-kit/lean-imt": ^2.2.4
     dotenv: ~16.3.1
     envfile: ~6.18.0
     ethers: ~5.7.1
+    poseidon-lite: ^0.3.0
     prettier: ~2.8.8
     qrcode: ~1.5.3
     shx: ^0.3.4

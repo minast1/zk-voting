@@ -7,13 +7,14 @@ fn main(
     root: pub Field,
     vote: pub bool,
     depth: pub u32,
+    poll_id: pub Field,
     //private inputs
     nullifier: Field,
     secret: Field,
     index: Field,
     siblings: [Field; 16],
 ) {
-    let computed_nullifier_hash: Field = poseidon::poseidon::bn254::hash_1([nullifier]);
+    let computed_nullifier_hash: Field = poseidon::poseidon::bn254::hash_2([nullifier, poll_id]);
     //check that the nullifier matches the public input
     assert(computed_nullifier_hash == null_hash);
 
