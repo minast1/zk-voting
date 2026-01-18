@@ -44,6 +44,7 @@ contract Voting is Ownable {
     mapping(uint256 => Poll) private s_polls;
 
     mapping(address => bool) private s_voters;
+    //mapping(uint256 => uint256) private s_allowedVoters;
     mapping(uint256 => mapping(address => bool)) private s_hasRegistered;
 
     IVerifier private i_verifier;
@@ -54,9 +55,16 @@ contract Voting is Ownable {
     /// Events ///
     //////////////
 
-    event VoterAdded(address indexed voter);
+    event VoterAdded(address indexed voter, uint256 indexed poll_id);
     event NewLeaf(uint256 index, uint256 value);
     event AllowListRequest(address indexed requester, uint256 timestamp);
+    // event PollExpired(
+    //     uint256 indexed pollId,
+    //     uint256 timestamp,
+    //     uint256 yesVotes,
+    //     uint256 noVotes
+    // );
+
     event CommitmentRegistered(
         uint256 indexed pollId,
         uint256 index,
@@ -88,10 +96,11 @@ contract Voting is Ownable {
     /// Functions ///
     //////////////////
     function createPoll(
+        ////// Make this function accessible for now
         string calldata question,
         uint256 startTime,
         uint256 endTime
-    ) external onlyOwner returns (uint256 pollId) {
+    ) external returns (uint256 pollId) {
         if (startTime > endTime || endTime < block.timestamp) {
             revert Voting__InvalidTimeWindow();
         }
@@ -111,6 +120,7 @@ contract Voting is Ownable {
      */
     function addVoters(
         address[] calldata voters,
+        uint256 pollId,
         bool[] calldata statuses
     ) public onlyOwner {
         require(
@@ -120,7 +130,7 @@ contract Voting is Ownable {
 
         for (uint256 i = 0; i < voters.length; i++) {
             s_voters[voters[i]] = statuses[i];
-            emit VoterAdded(voters[i]);
+            emit VoterAdded(voters[i], pollId);
         }
     }
 
@@ -266,4 +276,19 @@ contract Voting is Ownable {
     function requestAllowList() external {
         emit AllowListRequest(msg.sender, block.timestamp);
     }
+
+    // function triggerExpiration(uint256 pollId) external {
+    //     Poll storage poll = s_polls[pollId];
+    //     if (!poll.exists) {
+    //         revert Voting__InvalidPoll();
+    //     }
+    //     if (block.timestamp > poll.endTime) {
+    //         emit PollExpired(
+    //             pollId,
+    //             block.timestamp,
+    //             poll.yesVotes,
+    //             poll.noVotes
+    //         );
+    //     }
+    // }
 }

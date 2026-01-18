@@ -1,0 +1,45 @@
+import React from "react";
+import { useScaffoldEventHistory } from "../../../../../hooks/scaffold-eth/useScaffoldEventHistory";
+import { Users } from "lucide-react";
+import { Card, CardContent } from "~~/components/ui/card";
+import { useScaffoldWatchContractEvent } from "~~/hooks/scaffold-eth";
+import { useChallengeStore } from "~~/services/store/zk-store";
+
+const AllowedVoters = () => {
+  const activePollId = useChallengeStore(state => state.currentPollid);
+  const { data: voterAddedEvents, refetch } = useScaffoldEventHistory({
+    contractName: "Voting",
+    eventName: "VoterAdded",
+    watch: true,
+  });
+
+  useScaffoldWatchContractEvent({
+    contractName: "Voting",
+    eventName: "VoterAdded",
+    onLogs: () => {
+      refetch();
+    },
+  });
+
+  const totalAllowdVoters =
+    activePollId == null
+      ? 0
+      : voterAddedEvents.reduce((count, event) => {
+          return Number(event.args.poll_id) === activePollId ? count + 1 : count;
+        }, 0);
+  return (
+    <Card className="glass-card border-border/50">
+      <CardContent className="pt-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-muted-foreground">Allowed Voters</p>
+            <p className="text-3xl font-bold text-success">{totalAllowdVoters}</p>
+          </div>
+          <Users className="w-8 h-8 text-success" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default AllowedVoters;

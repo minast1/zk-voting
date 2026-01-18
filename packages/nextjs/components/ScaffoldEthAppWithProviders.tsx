@@ -22,7 +22,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
     <>
       <div className="min-h-screen bg-background">
         <Header voter={false} onLogout={handleLogout} />
-        <main className="container mx-auto px-4 py-8 max-w-4xl">{children}</main>
+        <main className="container mx-auto px-4 py-8 max-w-5xl">{children}</main>
         <Footer />
       </div>
       <Toaster />

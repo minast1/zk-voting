@@ -32,6 +32,8 @@ type ChallengeStoreType = {
   voteChoice: boolean | null;
   proofGenerated: boolean;
   hasVoted: boolean;
+  currentPollid: number | undefined;
+  setCurrentPollId: (id: number | undefined) => void;
   setHasVoted: (hasVoted: boolean) => void;
   setProofGenerated: (generated: boolean) => void;
   setVoteChoice: (choice: boolean | null) => void;
@@ -48,6 +50,7 @@ const initialState = {
   circuitData: null,
   proofGenerated: false,
   hasVoted: false,
+  currentPollid: undefined,
 };
 export const useChallengeStore = create<ChallengeStoreType>()(
   persist(
@@ -60,6 +63,7 @@ export const useChallengeStore = create<ChallengeStoreType>()(
       setVoteChoice: choice => set({ voteChoice: choice }),
       setCircuitData: data => set({ circuitData: data }),
       setHasVoted: hasVoted => set({ hasVoted }),
+      setCurrentPollId: id => set({ currentPollid: id }),
       updateCommitmentIndex: index =>
         set(state => ({
           commitmentData: state.commitmentData ? { ...state.commitmentData, index } : state.commitmentData,

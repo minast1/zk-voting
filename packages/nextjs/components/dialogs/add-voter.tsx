@@ -12,16 +12,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, UserPlus, X } from "lucide-react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
-import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+//import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { allowListSchema } from "~~/lib/schema";
 
 export function AddVoterDialog() {
   const [open, setOpen] = useState(false);
   const [allowStatus] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const { writeContractAsync } = useScaffoldWriteContract({
-    contractName: "Voting",
-  });
+  // const { writeContractAsync } = useScaffoldWriteContract({
+  //   contractName: "Voting",
+  // });
   const Aschema = allowListSchema(allowStatus);
   type AllowListSchema = z.infer<typeof Aschema>;
   const form = useForm({
@@ -37,25 +37,26 @@ export function AddVoterDialog() {
   });
 
   const handleBulkAdd = (data: AllowListSchema) => {
+    console.log(data);
     setIsLoading(true);
-    try {
-      writeContractAsync(
-        {
-          functionName: "addVoters",
-          args: [data.list.map(item => item.address), data.list.map(item => item.status)],
-        },
-        {
-          blockConfirmations: 1,
-          onBlockConfirmation: () => {
-            form.reset();
-            setIsLoading(false);
-          },
-        },
-      );
-    } catch (error) {
-      console.log(error);
-      setIsLoading(false);
-    }
+    // try {
+    //   writeContractAsync(
+    //     {
+    //       functionName: "addVoters",
+    //       args: [data.list.map(item => item.address), [1,2,3,4]],
+    //     },
+    //     {
+    //       blockConfirmations: 1,
+    //       onBlockConfirmation: () => {
+    //         form.reset();
+    //         setIsLoading(false);
+    //       },
+    //     },
+    //   );
+    // } catch (error) {
+    //   console.log(error);
+    //   setIsLoading(false);
+    // }
   };
 
   return (

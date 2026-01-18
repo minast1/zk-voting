@@ -1,22 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useScaffoldEventHistory } from "../../hooks/scaffold-eth/useScaffoldEventHistory";
+import { useState } from "react";
+import { useScaffoldEventHistory } from "../../../hooks/scaffold-eth/useScaffoldEventHistory";
 //import { usePathname, useRouter } from "next/navigation";
 import { NextPage } from "next";
 import { EmptyState } from "~~/app/dashboard/_components/empty-state";
 import { PollCard } from "~~/app/dashboard/_components/poll-card";
 //import useVoterData from "~~/hooks/useVoterData";
 import { CreatePollDialog } from "~~/components/dialogs/create-poll";
-import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+//import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { Poll } from "~~/lib/voting";
 
 const VotingPage: NextPage = () => {
-  const [polls, setPolls] = useState<Poll[]>([]);
-  const { data: votingData } = useScaffoldReadContract({
-    contractName: "Voting",
-    functionName: "getVotingData",
-  });
+  const [polls] = useState<Poll[]>([]);
+  // const { data: votingData } = useScaffoldReadContract({
+  //   contractName: "Voting",
+  //   functionName: "getVoterData",
+  //   args: [addr],
+  // });
 
   const { data: leafEvents } = useScaffoldEventHistory({
     contractName: "Voting",
@@ -24,30 +25,30 @@ const VotingPage: NextPage = () => {
     watch: true,
     enabled: true,
   });
-  useEffect(() => {
-    if (votingData) {
-      setPolls(prev => [
-        {
-          id: "1",
-          question: votingData[0],
-          createdAt: Number(votingData[7]),
-          createdBy: votingData[1],
-          yesVotes: Number(votingData[2]),
-          noVotes: Number(votingData[3]),
-          voters: ["0x7874665bf5da57d222de629d4c6ba9ae619076f0", "0xb99DF0373C051719Eb974707061f9E498892C010"],
-          size: Number(votingData[4]),
-          depth: Number(votingData[5]),
-          root: votingData[6].toString(), // Hashed voter IDs (anonymized)
-          status: "active",
-        },
-        ...prev,
-      ]);
-    }
-  }, [votingData]);
+  // useEffect(() => {
+  //   if (votingData) {
+  //     setPolls(prev => [
+  //       {
+  //         id: "1",
+  //         question: votingData[0],
+  //         createdAt: Number(votingData[7]),
+  //         createdBy: votingData[1],
+  //         yesVotes: Number(votingData[2]),
+  //         noVotes: Number(votingData[3]),
+  //         voters: ["0x7874665bf5da57d222de629d4c6ba9ae619076f0", "0xb99DF0373C051719Eb974707061f9E498892C010"],
+  //         size: Number(votingData[4]),
+  //         depth: Number(votingData[5]),
+  //         root: votingData[6].toString(), // Hashed voter IDs (anonymized)
+  //         status: "active",
+  //       },
+  //       ...prev,
+  //     ]);
+  //   }
+  // }, [votingData]);
 
-  const handlePollCreated = (poll: Poll) => {
-    setPolls([poll, ...polls]);
-  };
+  // const handlePollCreated = (poll: Poll) => {
+  //   setPolls([poll, ...polls]);
+  // };
 
   // const { registered } = useVoterData();
   // const router = useRouter();
@@ -70,7 +71,7 @@ const VotingPage: NextPage = () => {
             <h2 className="text-2xl font-bold">Active Polls</h2>
             <p className="text-muted-foreground">Cast your anonymous vote on any active poll below</p>
           </div>
-          <CreatePollDialog voterHash={"asdfhghgagad-agdsdsfds0fdsfd"} onPollCreated={handlePollCreated} />
+          <CreatePollDialog />
         </div>
 
         {polls.length === 0 ? (

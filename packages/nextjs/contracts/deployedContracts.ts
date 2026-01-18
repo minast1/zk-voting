@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     PoseidonT3: {
-      address: "0x50b0dc21e56104cafc26ce55ec5a088e30e98856",
+      address: "0xf3932039eb620c8d5f3acb5d26b07dba9243e296",
       abi: [
         {
           type: "function",
@@ -33,7 +33,7 @@ const deployedContracts = {
       deployedOnBlock: 1,
     },
     LeanIMT: {
-      address: "0x916f8460e28b1bcf957c4d36a3e184abe9ede3cf",
+      address: "0x00a1895eddeec621e7a0eb02e8d63649f584ad61",
       abi: [
         {
           type: "error",
@@ -80,11 +80,6 @@ const deployedContracts = {
               type: "address",
               internalType: "address",
             },
-            {
-              name: "_question",
-              type: "string",
-              internalType: "string",
-            },
           ],
           stateMutability: "nonpayable",
         },
@@ -98,6 +93,11 @@ const deployedContracts = {
               internalType: "address[]",
             },
             {
+              name: "pollId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
               name: "statuses",
               type: "bool[]",
               internalType: "bool[]",
@@ -108,42 +108,48 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "getVoterData",
+          name: "createPoll",
           inputs: [
-            {
-              name: "_voter",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          outputs: [
-            {
-              name: "voter",
-              type: "bool",
-              internalType: "bool",
-            },
-            {
-              name: "registered",
-              type: "bool",
-              internalType: "bool",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getVotingData",
-          inputs: [],
-          outputs: [
             {
               name: "question",
               type: "string",
               internalType: "string",
             },
             {
-              name: "contractOwner",
-              type: "address",
-              internalType: "address",
+              name: "startTime",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "endTime",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "getPoll",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "question",
+              type: "string",
+              internalType: "string",
             },
             {
               name: "yesVotes",
@@ -152,6 +158,16 @@ const deployedContracts = {
             },
             {
               name: "noVotes",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "startTime",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "endTime",
               type: "uint256",
               internalType: "uint256",
             },
@@ -170,10 +186,34 @@ const deployedContracts = {
               type: "uint256",
               internalType: "uint256",
             },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "getVoterData",
+          inputs: [
             {
-              name: "timestamp",
+              name: "_voter",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "pollId",
               type: "uint256",
               internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "voter",
+              type: "bool",
+              internalType: "bool",
+            },
+            {
+              name: "registered",
+              type: "bool",
+              internalType: "bool",
             },
           ],
           stateMutability: "view",
@@ -200,6 +240,11 @@ const deployedContracts = {
               type: "uint256",
               internalType: "uint256",
             },
+            {
+              name: "pollId",
+              type: "uint256",
+              internalType: "uint256",
+            },
           ],
           outputs: [],
           stateMutability: "nonpayable",
@@ -207,6 +252,13 @@ const deployedContracts = {
         {
           type: "function",
           name: "renounceOwnership",
+          inputs: [],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "requestAllowList",
           inputs: [],
           outputs: [],
           stateMutability: "nonpayable",
@@ -228,6 +280,11 @@ const deployedContracts = {
           type: "function",
           name: "vote",
           inputs: [
+            {
+              name: "_pollId",
+              type: "uint256",
+              internalType: "uint256",
+            },
             {
               name: "_proof",
               type: "bytes",
@@ -256,6 +313,50 @@ const deployedContracts = {
           ],
           outputs: [],
           stateMutability: "nonpayable",
+        },
+        {
+          type: "event",
+          name: "AllowListRequest",
+          inputs: [
+            {
+              name: "requester",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "timestamp",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
+          name: "CommitmentRegistered",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              indexed: true,
+              internalType: "uint256",
+            },
+            {
+              name: "index",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+            {
+              name: "value",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
         },
         {
           type: "event",
@@ -297,19 +398,50 @@ const deployedContracts = {
         },
         {
           type: "event",
+          name: "PollCreated",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              indexed: true,
+              internalType: "uint256",
+            },
+            {
+              name: "question",
+              type: "string",
+              indexed: false,
+              internalType: "string",
+            },
+            {
+              name: "startTime",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+            {
+              name: "endTime",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
           name: "VoteCast",
           inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              indexed: true,
+              internalType: "uint256",
+            },
             {
               name: "nullifierHash",
               type: "bytes32",
               indexed: true,
               internalType: "bytes32",
-            },
-            {
-              name: "voter",
-              type: "address",
-              indexed: true,
-              internalType: "address",
             },
             {
               name: "vote",
@@ -348,6 +480,12 @@ const deployedContracts = {
               indexed: true,
               internalType: "address",
             },
+            {
+              name: "poll_id",
+              type: "uint256",
+              indexed: true,
+              internalType: "uint256",
+            },
           ],
           anonymous: false,
         },
@@ -375,6 +513,11 @@ const deployedContracts = {
         },
         {
           type: "error",
+          name: "Voting__AlreadyRegistered",
+          inputs: [],
+        },
+        {
+          type: "error",
           name: "Voting__CommitmentAlreadyAdded",
           inputs: [
             {
@@ -391,12 +534,22 @@ const deployedContracts = {
         },
         {
           type: "error",
+          name: "Voting__InvalidPoll",
+          inputs: [],
+        },
+        {
+          type: "error",
           name: "Voting__InvalidProof",
           inputs: [],
         },
         {
           type: "error",
           name: "Voting__InvalidRoot",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "Voting__InvalidTimeWindow",
           inputs: [],
         },
         {
@@ -415,9 +568,14 @@ const deployedContracts = {
             },
           ],
         },
+        {
+          type: "error",
+          name: "Voting__VotingClosed",
+          inputs: [],
+        },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 2,
+      deployedOnBlock: 1,
     },
   },
   11155111: {
@@ -495,11 +653,6 @@ const deployedContracts = {
               type: "address",
               internalType: "address",
             },
-            {
-              name: "_question",
-              type: "string",
-              internalType: "string",
-            },
           ],
           stateMutability: "nonpayable",
         },
@@ -513,6 +666,11 @@ const deployedContracts = {
               internalType: "address[]",
             },
             {
+              name: "pollId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
               name: "statuses",
               type: "bool[]",
               internalType: "bool[]",
@@ -523,42 +681,48 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "getVoterData",
+          name: "createPoll",
           inputs: [
-            {
-              name: "_voter",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          outputs: [
-            {
-              name: "voter",
-              type: "bool",
-              internalType: "bool",
-            },
-            {
-              name: "registered",
-              type: "bool",
-              internalType: "bool",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getVotingData",
-          inputs: [],
-          outputs: [
             {
               name: "question",
               type: "string",
               internalType: "string",
             },
             {
-              name: "contractOwner",
-              type: "address",
-              internalType: "address",
+              name: "startTime",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "endTime",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "getPoll",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "question",
+              type: "string",
+              internalType: "string",
             },
             {
               name: "yesVotes",
@@ -567,6 +731,16 @@ const deployedContracts = {
             },
             {
               name: "noVotes",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "startTime",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "endTime",
               type: "uint256",
               internalType: "uint256",
             },
@@ -585,10 +759,34 @@ const deployedContracts = {
               type: "uint256",
               internalType: "uint256",
             },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "getVoterData",
+          inputs: [
             {
-              name: "timestamp",
+              name: "_voter",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "pollId",
               type: "uint256",
               internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "voter",
+              type: "bool",
+              internalType: "bool",
+            },
+            {
+              name: "registered",
+              type: "bool",
+              internalType: "bool",
             },
           ],
           stateMutability: "view",
@@ -615,6 +813,11 @@ const deployedContracts = {
               type: "uint256",
               internalType: "uint256",
             },
+            {
+              name: "pollId",
+              type: "uint256",
+              internalType: "uint256",
+            },
           ],
           outputs: [],
           stateMutability: "nonpayable",
@@ -622,6 +825,13 @@ const deployedContracts = {
         {
           type: "function",
           name: "renounceOwnership",
+          inputs: [],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "requestAllowList",
           inputs: [],
           outputs: [],
           stateMutability: "nonpayable",
@@ -643,6 +853,11 @@ const deployedContracts = {
           type: "function",
           name: "vote",
           inputs: [
+            {
+              name: "_pollId",
+              type: "uint256",
+              internalType: "uint256",
+            },
             {
               name: "_proof",
               type: "bytes",
@@ -671,6 +886,50 @@ const deployedContracts = {
           ],
           outputs: [],
           stateMutability: "nonpayable",
+        },
+        {
+          type: "event",
+          name: "AllowListRequest",
+          inputs: [
+            {
+              name: "requester",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "timestamp",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
+          name: "CommitmentRegistered",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              indexed: true,
+              internalType: "uint256",
+            },
+            {
+              name: "index",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+            {
+              name: "value",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
         },
         {
           type: "event",
@@ -712,19 +971,50 @@ const deployedContracts = {
         },
         {
           type: "event",
+          name: "PollCreated",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              indexed: true,
+              internalType: "uint256",
+            },
+            {
+              name: "question",
+              type: "string",
+              indexed: false,
+              internalType: "string",
+            },
+            {
+              name: "startTime",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+            {
+              name: "endTime",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
           name: "VoteCast",
           inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              indexed: true,
+              internalType: "uint256",
+            },
             {
               name: "nullifierHash",
               type: "bytes32",
               indexed: true,
               internalType: "bytes32",
-            },
-            {
-              name: "voter",
-              type: "address",
-              indexed: true,
-              internalType: "address",
             },
             {
               name: "vote",
@@ -763,6 +1053,12 @@ const deployedContracts = {
               indexed: true,
               internalType: "address",
             },
+            {
+              name: "poll_id",
+              type: "uint256",
+              indexed: true,
+              internalType: "uint256",
+            },
           ],
           anonymous: false,
         },
@@ -790,6 +1086,11 @@ const deployedContracts = {
         },
         {
           type: "error",
+          name: "Voting__AlreadyRegistered",
+          inputs: [],
+        },
+        {
+          type: "error",
           name: "Voting__CommitmentAlreadyAdded",
           inputs: [
             {
@@ -806,12 +1107,22 @@ const deployedContracts = {
         },
         {
           type: "error",
+          name: "Voting__InvalidPoll",
+          inputs: [],
+        },
+        {
+          type: "error",
           name: "Voting__InvalidProof",
           inputs: [],
         },
         {
           type: "error",
           name: "Voting__InvalidRoot",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "Voting__InvalidTimeWindow",
           inputs: [],
         },
         {
@@ -829,6 +1140,11 @@ const deployedContracts = {
               internalType: "bytes32",
             },
           ],
+        },
+        {
+          type: "error",
+          name: "Voting__VotingClosed",
+          inputs: [],
         },
       ],
       inheritedFunctions: {},

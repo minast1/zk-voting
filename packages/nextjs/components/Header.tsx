@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { usePathname } from "next/navigation";
 import { AddVoterDialog } from "./dialogs/add-voter";
 import { FaucetButton, RainbowKitCustomConnectButton } from "./scaffold-eth";
 //import Image from "next/image";
@@ -14,55 +15,6 @@ import { LogOut, Shield, User } from "lucide-react";
 import { hardhat } from "viem/chains";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth";
 
-//import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
-
-// type HeaderMenuLink = {
-//   label: string;
-//   href: string;
-//   icon?: React.ReactNode;
-// };
-
-// export const menuLinks: HeaderMenuLink[] = [
-//   {
-//     label: "Home",
-//     href: "/",
-//   },
-//   {
-//     label: "Debug Contracts",
-//     href: "/debug",
-//     icon: <BugAntIcon className="h-4 w-4" />,
-//   },
-// ];
-
-// export const HeaderMenuLinks = () => {
-//   const pathname = usePathname();
-
-//   return (
-//     <>
-//       {menuLinks.map(({ label, href, icon }) => {
-//         const isActive = pathname === href;
-//         return (
-//           <li key={href}>
-//             <Link
-//               href={href}
-//               passHref
-//               className={`${
-//                 isActive ? "bg-secondary shadow-md" : ""
-//               } hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col`}
-//             >
-//               {icon}
-//               <span>{label}</span>
-//             </Link>
-//           </li>
-//         );
-//       })}
-//     </>
-//   );
-// };
-
-/**
- * Site header
- */
 interface HeaderProps {
   voter: boolean | null;
   onLogout: () => void;
@@ -70,11 +22,7 @@ interface HeaderProps {
 export const Header = ({ voter, onLogout }: HeaderProps) => {
   const { targetNetwork } = useTargetNetwork();
   const isLocalNetwork = targetNetwork.id === hardhat.id;
-
-  // const burgerMenuRef = useRef<HTMLDetailsElement>(null);
-  // useOutsideClick(burgerMenuRef, () => {
-  //   burgerMenuRef?.current?.removeAttribute("open");
-  // });
+  const pathname = usePathname();
 
   return (
     <header className="border-b border-border/50 bg-card/30 backdrop-blur-xl sticky top-0 z-50">
@@ -90,8 +38,8 @@ export const Header = ({ voter, onLogout }: HeaderProps) => {
         </div>
 
         <div className="flex items-center gap-4">
-          <AddVoterDialog />
           <div className="flex items-center gap-3">
+            {pathname === "/dashboard/admin-portal" && <AddVoterDialog />}
             <RainbowKitCustomConnectButton />
             {isLocalNetwork && <FaucetButton />}
             {/* <SwitchTheme /> */}

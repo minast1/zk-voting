@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useScaffoldEventHistory } from "../../../hooks/scaffold-eth/useScaffoldEventHistory";
 import { Check, CheckCircle2, Clock, Fingerprint, Loader2, ShieldCheck, Users, X } from "lucide-react";
-import { getContract, parseEther } from "viem";
+//import { getContract, parseEther } from "viem";
 import { Button } from "~~/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "~~/components/ui/card";
 import { Progress } from "~~/components/ui/progress";
-import { testClient, useDeployedContractInfo } from "~~/hooks/scaffold-eth";
-import { privateAccount, publicClient, voterClient } from "~~/lib/private-account";
-import uint8ArrayToHexString from "~~/lib/uint-to-hex";
+import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
+import { privateAccount } from "~~/lib/private-account";
+//import uint8ArrayToHexString from "~~/lib/uint-to-hex";
 import { cn } from "~~/lib/utils";
 import { Poll } from "~~/lib/voting";
 import { useChallengeStore } from "~~/services/store/zk-store";
@@ -45,17 +45,17 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents }: PollCardProps
     watch: true,
     enabled: !!privateAccount?.address,
   });
-
-  useEffect(() => {
-    if (privateAccount?.address && voteCastEvents) {
-      const hasVotedAlready = voteCastEvents.some(
-        event => event.args?.voter?.toLowerCase() === privateAccount.address.toLowerCase(),
-      );
-      setHasVoted(hasVotedAlready);
-    } else {
-      setHasVoted(false);
-    }
-  }, [setHasVoted, voteCastEvents]);
+  console.log(voteCastEvents);
+  // useEffect(() => {
+  //   if (privateAccount?.address && voteCastEvents) {
+  //     const hasVotedAlready = voteCastEvents.some(
+  //       event => event.args?.voter?.toLowerCase() === privateAccount.address.toLowerCase(),
+  //     );
+  //     setHasVoted(hasVotedAlready);
+  //   } else {
+  //     setHasVoted(false);
+  //   }
+  // }, [setHasVoted, voteCastEvents]);
 
   const { data: contractInfo } = useDeployedContractInfo({ contractName: "Voting" });
   //console.log(uint8ArrayToHexString(proofData?.proof));
@@ -115,28 +115,29 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents }: PollCardProps
       }
       //check if account has enough gas
 
-      const currentBal = await publicClient.getBalance({ address: privateAccount.address as `0x${string}` });
-      if (currentBal < parseEther("0.02")) {
-      }
-      //fund the private account with ETH
-      await testClient.setBalance({
-        address: privateAccount.address as `0x${string}`,
-        value: parseEther("0.02"),
-      });
+      // const currentBal = await publicClient.getBalance({ address: privateAccount.address as `0x${string}` });
+      // if (currentBal) {
+      // }
+      // //fund the private account with ETH
+      // await testClient.setBalance({
+      //   address: privateAccount.address as `0x${string}`,
+      //   value: parseEther("0.02"),
+      // });
 
-      const viemContract = getContract({
-        address: contractInfo.address as `0x${string}`,
-        abi: contractInfo.abi,
-        client: voterClient,
-      });
-      const hash = await viemContract.write.vote([
-        uint8ArrayToHexString(proofData.proof),
-        proofData.publicInputs[0],
-        proofData.publicInputs[1],
-        proofData.publicInputs[2],
-        proofData.publicInputs[3],
-      ]);
-      await publicClient.waitForTransactionReceipt({ hash });
+      // const viemContract = getContract({
+      //   address: contractInfo.address as `0x${string}`,
+      //   abi: contractInfo.abi,
+      //   client: voterClient,
+      // });
+      //  const hash = `0x${randomBytes(32).toString("hex")}`;
+      //  await viemContract.write.vote([
+      //   uint8ArrayToHexString(proofData.proof),
+      //   proofData.publicInputs[0],
+      //   proofData.publicInputs[1],
+      //   proofData.publicInputs[2],
+      //   proofData.publicInputs[3],
+      // ]);
+      // await publicClient.waitForTransactionReceipt({ hash });
       notification.success("Vote submitted successfully");
       setIsSubmitting(false);
       setHasVoted(true);

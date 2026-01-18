@@ -2,20 +2,18 @@
 
 // import Link from "next/link";
 // import { Address } from "@scaffold-ui/components";
-import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useScaffoldEventHistory } from "../hooks/scaffold-eth/useScaffoldEventHistory";
 // import { hardhat } from "viem/chains";
 // import { useAccount } from "wagmi";
 // import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 // import { useTargetNetwork } from "~~/hooks/scaffold-eth";
-import { Eye, Lock, ShieldCheck, Vote } from "lucide-react";
+import { ArrowRight, Eye, Lock, ShieldCheck, UserCog, Users, Vote } from "lucide-react";
 import type { NextPage } from "next";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~~/components/ui/card";
 
 //import { VoterRegistration } from "~~/components/voter-registration";
 
-const VoterRegistration = dynamic(() => import("~~/components/voter-registration").then(mod => mod.VoterRegistration), {
-  ssr: false,
-});
 const Home: NextPage = () => {
   const { data: leafEvents } = useScaffoldEventHistory({
     contractName: "Voting",
@@ -23,7 +21,7 @@ const Home: NextPage = () => {
     watch: true,
     enabled: true,
   });
-
+  console.log(leafEvents);
   return (
     <>
       <div className="space-y-12">
@@ -77,8 +75,79 @@ const Home: NextPage = () => {
           ))}
         </div>
 
-        {/* Registration */}
-        <VoterRegistration leafEvents={leafEvents || []} />
+        {/* <VoterRegistration leafEvents={leafEvents || []} /> */}
+        {/* Portal Cards */}
+        <div className="grid sm:grid-cols-2 gap-6 py-8">
+          <Link href="/dashboard/voter-portal" className="group">
+            <Card className="glass-card border-border/50 h-full transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10">
+              <CardHeader>
+                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                  <Users className="w-7 h-7 text-primary" />
+                </div>
+                <CardTitle className="flex items-center gap-2">
+                  Voter Portal
+                  <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                </CardTitle>
+                <CardDescription>Participate in polls and manage your voting access</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                    Register identity per poll
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                    Vote privately with ZK proofs
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                    View allowlist status
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                    Request voting access
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/dashboard/admin-portal" className="group">
+            <Card className="glass-card border-border/50 h-full transition-all duration-300 hover:border-accent/50 hover:shadow-lg hover:shadow-accent/10">
+              <CardHeader>
+                <div className="w-14 h-14 rounded-xl bg-accent/10 flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
+                  <UserCog className="w-7 h-7 text-accent" />
+                </div>
+                <CardTitle className="flex items-center gap-2">
+                  Admin Dashboard
+                  <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                </CardTitle>
+                <CardDescription>Manage polls, voters, and access requests</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-accent" />
+                    Create and manage polls
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-accent" />
+                    Add/remove voters from allowlist
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-accent" />
+                    Review access requests
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-accent" />
+                    Monitor poll results
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
       </div>
     </>
   );
