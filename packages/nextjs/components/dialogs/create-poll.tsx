@@ -41,6 +41,8 @@ export function CreatePollDialog() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const setCurrentPollId = useChallengeStore(state => state.setCurrentPollId);
+  const setExpiresAt = useChallengeStore(state => state.setExpiresAt);
+  const setCurrentPollQuestion = useChallengeStore(state => state.setCurrentPollQuestion);
   const { data: votingContractInfo } = useDeployedContractInfo({ contractName: "Voting" });
   const { targetNetwork } = useTargetNetwork();
   const publicClient = usePublicClient({ chainId: targetNetwork.id });
@@ -53,8 +55,11 @@ export function CreatePollDialog() {
       eventName: "PollCreated",
       onLogs: logs => {
         logs.forEach(log => {
-          const { pollId } = log.args;
+          const { pollId, endTime, question } = log.args;
+
           setCurrentPollId(Number(pollId));
+          setCurrentPollQuestion(question);
+          setExpiresAt(endTime);
           setOpen(false);
         });
       },

@@ -18,31 +18,54 @@ interface SerializedUint8Array {
   data: number[];
 }
 
+interface SerializedBigInt {
+  __type: "BigInt";
+  value: string;
+}
+type SerializedData = SerializedUint8Array | SerializedBigInt;
 // Type guard to verify the format during rehydration
-function isSerializedUint8Array(value: any): value is SerializedUint8Array {
-  return value !== null && typeof value === "object" && value.__type === "Uint8Array" && Array.isArray(value.data);
+function isSerializedData(value: any): value is SerializedData {
+  return (
+    value !== null &&
+    typeof value === "object" &&
+    "__type" in value &&
+    (value.__type === "Uint8Array" || value.__type === "BigInt")
+  );
+  // return (
+  //   (typeof value === "object" && value !== null && "__type" in value && (value as any).__type === "Uint8Array") ||
+  //   (value as any).__type === "BigInt"
+  // );
 }
 
-type ChallengeStoreType = {
+interface ChallengeState {
   commitmentData: CommitmentData | null;
-  setCommitmentData: (data: CommitmentData | null) => void;
   proofData: ProofData | null;
-  setProofData: (data: ProofData | null) => void;
+  hasHydrated: boolean;
   circuitData: any | null;
   voteChoice: boolean | null;
   proofGenerated: boolean;
   hasVoted: boolean;
   currentPollid: number | undefined;
-  setCurrentPollId: (id: number | undefined) => void;
-  setHasVoted: (hasVoted: boolean) => void;
-  setProofGenerated: (generated: boolean) => void;
-  setVoteChoice: (choice: boolean | null) => void;
+  currentPollQuestion: string | undefined;
+  expiresAt: bigint | undefined;
+}
+
+interface ChallengeActions {
+  setCommitmentData: (data: CommitmentData | null) => void;
+  setProofData: (data: ProofData | null) => void;
+  setHasHydrated: (state: boolean) => void;
   setCircuitData: (data: any | null) => void;
+  setVoteChoice: (choice: boolean | null) => void;
+  setProofGenerated: (generated: boolean) => void;
+  setHasVoted: (hasVoted: boolean) => void;
+  setCurrentPollId: (id: number | undefined) => void;
+  setCurrentPollQuestion: (question: string | undefined) => void;
+  setExpiresAt: (expiresAt: bigint | undefined) => void;
   updateCommitmentIndex: (index: number) => void;
   reset: () => void;
-};
+}
 
-const PROOF_STORAGE_KEY_PREFIX = "zk-voting-proof-data";
+//const PROOF_STORAGE_KEY_PREFIX = "zk-voting-proof-data";
 const initialState = {
   commitmentData: null,
   proofData: null,
@@ -51,8 +74,11 @@ const initialState = {
   proofGenerated: false,
   hasVoted: false,
   currentPollid: undefined,
+  expiresAt: undefined,
+  currentPollQuestion: undefined,
+  hasHydrated: false,
 };
-export const useChallengeStore = create<ChallengeStoreType>()(
+export const useChallengeStore = create<ChallengeState & ChallengeActions>()(
   persist(
     set => ({
       ...initialState,
@@ -64,6 +90,9 @@ export const useChallengeStore = create<ChallengeStoreType>()(
       setCircuitData: data => set({ circuitData: data }),
       setHasVoted: hasVoted => set({ hasVoted }),
       setCurrentPollId: id => set({ currentPollid: id }),
+      setExpiresAt: expiresAt => set({ expiresAt }),
+      setHasHydrated: state => set({ hasHydrated: state }),
+      setCurrentPollQuestion: question => set({ currentPollQuestion: question }),
       updateCommitmentIndex: index =>
         set(state => ({
           commitmentData: state.commitmentData ? { ...state.commitmentData, index } : state.commitmentData,
@@ -73,7 +102,33 @@ export const useChallengeStore = create<ChallengeStoreType>()(
       },
     }),
     {
-      name: PROOF_STORAGE_KEY_PREFIX,
+      name: "zk-voting-store-v2026",
+      merge: (persistedState: any, currentState) => ({
+        ...currentState,
+        ...(persistedState as object),
+      }),
+      partialize: state => ({
+        commitmentData: state.commitmentData,
+        proofData: state.proofData,
+        voteChoice: state.voteChoice,
+        circuitData: state.circuitData,
+        proofGenerated: state.proofGenerated,
+        hasVoted: state.hasVoted,
+        currentPollid: state.currentPollid,
+        expiresAt: state.expiresAt,
+        currentPollQuestion: state.currentPollQuestion,
+        hasHydrated: state.hasHydrated,
+      }),
+      onRehydrateStorage: () => {
+        //state?.setHasHydrated?.(true);
+        return (state, error) => {
+          if (error) {
+            console.log("an error happened during hydration", error);
+          } else {
+            state?.setHasHydrated?.(true);
+          }
+        };
+      },
       storage: createJSONStorage(() => localStorage, {
         // Recursively finds any Uint8Array in your object tree (including nested ones)
         replacer: (key, value) => {
@@ -84,13 +139,25 @@ export const useChallengeStore = create<ChallengeStoreType>()(
               data: Array.from(value),
             } as SerializedUint8Array;
           }
+
+          // 2. Add BigInt Support
+          if (typeof value === "bigint") {
+            return { __type: "BigInt", value: value.toString() } as SerializedBigInt; //value.toString();
+          }
           return value;
         },
         // Recursively reconstructs Uint8Array during rehydration
         reviver: (key, value) => {
-          if (isSerializedUint8Array(value)) {
-            return new Uint8Array(value.data);
+          if (isSerializedData(value)) {
+            if (value.__type === "Uint8Array") {
+              return new Uint8Array(value.data);
+            }
+
+            if (value.__type === "BigInt") {
+              return BigInt(value.value);
+            }
           }
+
           return value;
         },
       }),

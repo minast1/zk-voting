@@ -15,6 +15,12 @@ import { useChallengeStore } from "~~/services/store/zk-store";
 const PollmonitorTab = () => {
   const currentPollId = useChallengeStore(state => state.currentPollid);
   const setCurrentPollId = useChallengeStore(state => state.setCurrentPollId);
+  const setExpiresAt = useChallengeStore(state => state.setExpiresAt);
+  const expiresAt = useChallengeStore(state => state.expiresAt);
+  const question = useChallengeStore(state => state.currentPollQuestion);
+  //const setCurrentQuestion = useChallengeStore(state => state.setCurrentPollQuestion);
+  const hasHydrated = useChallengeStore(state => state.hasHydrated);
+
   const { data: poll, isLoading } = useScaffoldReadContract({
     contractName: "Voting",
     functionName: "getPoll",
@@ -24,15 +30,19 @@ const PollmonitorTab = () => {
     },
   });
 
-  const { isExpired, formatted } = useCountdown(poll ? poll[4] : undefined);
-  console.log(isExpired);
+  const { isExpired, formatted } = useCountdown(expiresAt || 0n, currentPollId || 0);
+  const isCountingDown = expiresAt !== undefined && currentPollId !== undefined;
+
   // const yesPercentage = //totalVotes > 0 ? (poll.yesVotes / totalVotes) * 100 : 0;
   useEffect(() => {
-    if (isExpired) {
+    if (isExpired && currentPollId !== undefined) {
       setCurrentPollId(undefined);
+      // setCurrentQuestion(undefined);
+      setExpiresAt(undefined);
     }
-  }, [isExpired, setCurrentPollId]);
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isExpired, hasHydrated]);
+  //console.log(formatted);
   const handleClose = () => {
     // closePoll(poll.id);
     // onClose();
@@ -46,21 +56,22 @@ const PollmonitorTab = () => {
         {/* {!isExpired && <CreatePollDialog />} */}
       </div>
 
-      {poll ? (
+      {isCountingDown ? (
         <Card className="glass-card border-border/50">
-          <CardHeader className="pb-3">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <CardTitle className="text-lg">{poll[0]}</CardTitle>
-                <CardDescription className="flex items-center gap-2 mt-1">
-                  <Badge variant={!isExpired ? "default" : "secondary"}>{!isExpired ? "Active" : "Closed"}</Badge>
-                  {!isExpired && (
+          <CardHeader className="pb-3  w-full ">
+            <div className="flex items-center justify-between gap-4">
+              <CardTitle className="text-lg">{question}</CardTitle>
+              <CardDescription className="flex items-center gap-2 mt-1">
+                <Badge variant={!isExpired ? "default" : "secondary"}>{!isExpired ? "Active" : "Closed"}</Badge>
+                {!isExpired && (
+                  <div className="flex items-center gap-2">
                     <span className={cn("text-xs font-mono", isExpired ? "text-destructive" : "text-primary")}>
-                      {formatted}
+                      Time Remaining {formatted}
                     </span>
-                  )}
-                </CardDescription>
-              </div>
+                  </div>
+                )}
+              </CardDescription>
+
               {isExpired && (
                 <Button variant="destructive" size="sm" onClick={handleClose}>
                   Close Poll
@@ -71,15 +82,15 @@ const PollmonitorTab = () => {
           <CardContent>
             <div className="grid grid-cols-3 gap-4 text-center">
               <div className="p-3 rounded-lg bg-secondary/30">
-                <p className="text-2xl font-bold text-success">{Number(poll[1])}</p>
+                <p className="text-2xl font-bold text-success">{poll && Number(poll[1])}</p>
                 <p className="text-xs text-muted-foreground">Yes Votes</p>
               </div>
               <div className="p-3 rounded-lg bg-secondary/30">
-                <p className="text-2xl font-bold text-destructive">{Number(poll[2])}</p>
+                <p className="text-2xl font-bold text-destructive">{poll && Number(poll[2])}</p>
                 <p className="text-xs text-muted-foreground">No Votes</p>
               </div>
               <div className="p-3 rounded-lg bg-secondary/30">
-                <p className="text-2xl font-bold text-primary">{Number(poll[1] + poll[2])}</p>
+                <p className="text-2xl font-bold text-primary">{poll && Number(poll[1] + poll[2])}</p>
                 <p className="text-xs text-muted-foreground">Total Votes</p>
               </div>
             </div>

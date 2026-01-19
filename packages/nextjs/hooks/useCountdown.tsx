@@ -1,7 +1,6 @@
-import { useTargetNetwork } from "./scaffold-eth";
 import { useQuery } from "@tanstack/react-query";
-import { usePublicClient } from "wagmi";
-import { useChallengeStore } from "~~/services/store/zk-store";
+
+//import { useChallengeStore } from "~~/services/store/zk-store";
 
 interface CountdownResult {
   days: number;
@@ -12,23 +11,19 @@ interface CountdownResult {
   formatted: string;
 }
 
-export function useCountdown(expiresAt: bigint | undefined): CountdownResult {
-  const currentPollId = useChallengeStore(state => state.currentPollid);
-  const { targetNetwork } = useTargetNetwork();
-  const publicClient = usePublicClient({ chainId: targetNetwork?.id });
+export function useCountdown(expiresAt: bigint, currentPollId: number): CountdownResult {
+  //const setCurrentPollId = useChallengeStore(state => state.setCurrentPollId);
+  //const setExpiresAt = useChallengeStore(state => state.setExpiresAt);
+  // const setCurrentPollQuestion = useChallengeStore(state => state.setCurrentPollQuestion);
   const { data } = useQuery({
+    // Use string representation for queryKey to avoid BigInt serialization issues
     queryKey: ["countdown", expiresAt?.toString(), currentPollId],
-    queryFn: async () => {
-      const block = await publicClient?.getBlock({ blockTag: "latest" });
-      const networkTime = block?.timestamp || BigInt(Math.floor(Date.now() / 1000));
-      const systemTime = BigInt(Math.floor(Date.now() / 1000));
-      const offset = networkTime - systemTime;
-      return calculateTimeLeft(expiresAt, offset);
-    },
-    enabled: typeof expiresAt === "bigint" && !!currentPollId && !!publicClient,
+    queryFn: () => calculateTimeLeft(expiresAt),
+    // Fix: Check for bigint type
+    enabled: typeof expiresAt === "bigint" && currentPollId !== undefined,
     refetchInterval: 1000,
     refetchIntervalInBackground: true,
-    initialData: () => calculateTimeLeft(expiresAt, 0n),
+    //initialData: () => calculateTimeLeft(expiresAt),
   });
 
   return (
@@ -43,32 +38,22 @@ export function useCountdown(expiresAt: bigint | undefined): CountdownResult {
   );
 }
 
-function calculateTimeLeft(expiresAt: bigint | undefined, offset: bigint): CountdownResult {
-  if (typeof expiresAt !== "bigint") {
-    return {
-      days: 0,
-      hours: 0,
-      minutes: 0,
-      seconds: 0,
-      isExpired: false,
-      formatted: "No expiry",
-    };
-  }
+function calculateTimeLeft(expiresAt: bigint): CountdownResult {
+  // // 1. Correct Type Check
+  // if (typeof expiresAt !== "bigint") {
+  //   return { days: 0, hours: 0, minutes: 0, seconds: 0, isExpired: false, formatted: "No expiry" };
+  // }
 
-  const nowWithOffset = BigInt(Math.floor(Date.now() / 1000)) + offset;
-  const difference = expiresAt - nowWithOffset;
+  // 2. BigInt Constants (Timestamps are usually in seconds in Solidity)
+  const now = BigInt(Math.floor(Date.now() / 1000));
+  const difference = expiresAt - now;
 
   if (difference <= 0n) {
-    return {
-      days: 0,
-      hours: 0,
-      minutes: 0,
-      seconds: 0,
-      isExpired: true,
-      formatted: "Expired",
-    };
+    // Poll has expired
+    return { days: 0, hours: 0, minutes: 0, seconds: 0, isExpired: true, formatted: "Expired" };
   }
 
+  // 3. BigInt Math (Avoids Number precision loss for large timestamps)
   const SECOND = 1n;
   const MINUTE = 60n * SECOND;
   const HOUR = 60n * MINUTE;
@@ -78,22 +63,18 @@ function calculateTimeLeft(expiresAt: bigint | undefined, offset: bigint): Count
   const hours = (difference % DAY) / HOUR;
   const minutes = (difference % HOUR) / MINUTE;
   const seconds = (difference % MINUTE) / SECOND;
-  //Convert to numbers for ui
+
+  // 4. Convert to Number for UI/Formatting
   const d = Number(days);
   const h = Number(hours);
   const m = Number(minutes);
   const s = Number(seconds);
 
   let formatted: string;
-  if (d > 0) {
-    formatted = `${d}d ${h}h`;
-  } else if (h > 0) {
-    formatted = `${h}h ${m}m`;
-  } else if (m > 0) {
-    formatted = `${m}m ${s}s`;
-  } else {
-    formatted = `${s}s`;
-  }
+  if (d > 0) formatted = `${d}d ${h}h`;
+  else if (h > 0) formatted = `${h}h ${m}m`;
+  else if (m > 0) formatted = `${m}m ${s}s`;
+  else formatted = `${s}s`;
 
   return {
     days: d,
