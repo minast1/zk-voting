@@ -20,7 +20,7 @@ const PollRow = ({ id }: { id: number }) => {
                 <p className="font-medium">{pollData[0]}</p>
                 <p className="text-xs text-muted-foreground">{pollData[1] + pollData[2]} total votes</p>
               </div>
-              <Badge variant="secondary">Closed</Badge>
+              <Badge variant="default">Closed</Badge>
             </div>
           </CardContent>
         </Card>

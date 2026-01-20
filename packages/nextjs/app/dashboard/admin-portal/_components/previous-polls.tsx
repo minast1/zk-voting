@@ -12,22 +12,19 @@ const PreviousPolls = () => {
     contractName: "Voting",
     eventName: "PollCreated",
     watch: false,
-    //enabled: !!privateAccount?.address,
   });
   useEffect(() => {
     refetch();
-    console.log("Non blockchain time expired");
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expiresAt, pollId]);
-
-  const now = BigInt(Math.floor(Date.now() / 1000));
 
   const pollIds = React.useMemo(() => {
     if (!pollCreatedEvents?.length) return [];
 
     return pollCreatedEvents
-      .filter((e): e is NonNullable<typeof e> => !!e && !!e.args && typeof e.args.endTime === "bigint")
-      .filter(e => e.args.endTime! <= now)
+      .filter((e): e is NonNullable<typeof e> => !!e && !!e.args)
+      .filter(e => Number(e.args.pollId) !== pollId)
       .map(e => e.args.pollId)
       .slice(0, 3);
     // eslint-disable-next-line react-hooks/exhaustive-deps

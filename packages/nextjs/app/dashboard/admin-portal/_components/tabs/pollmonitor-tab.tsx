@@ -18,7 +18,7 @@ const PollmonitorTab = () => {
   const setExpiresAt = useChallengeStore(state => state.setExpiresAt);
   const expiresAt = useChallengeStore(state => state.expiresAt);
   const question = useChallengeStore(state => state.currentPollQuestion);
-  //const setCurrentQuestion = useChallengeStore(state => state.setCurrentPollQuestion);
+  const setCurrentQuestion = useChallengeStore(state => state.setCurrentPollQuestion);
   const hasHydrated = useChallengeStore(state => state.hasHydrated);
 
   const { data: poll, isLoading } = useScaffoldReadContract({
@@ -37,7 +37,7 @@ const PollmonitorTab = () => {
   useEffect(() => {
     if (isExpired && currentPollId !== undefined) {
       setCurrentPollId(undefined);
-      // setCurrentQuestion(undefined);
+      setCurrentQuestion(undefined);
       setExpiresAt(undefined);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
