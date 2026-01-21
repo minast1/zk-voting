@@ -1,11 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import ActivePoll from "./_components/cards/active-poll";
 import AllowedVoters from "./_components/cards/allowed-voters";
 import PendingRequests from "./_components/cards/pending-requests";
 import TotalPolls from "./_components/cards/total-polls";
 import AllowListTab from "./_components/tabs/allowlist-tab";
 import PollmonitorTab from "./_components/tabs/pollmonitor-tab";
+import { ArrowLeft } from "lucide-react";
 import { NextPage } from "next";
 import { Badge } from "~~/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "~~/components/ui/tabs";
@@ -33,6 +35,27 @@ const VotingPage: NextPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <header className="border-b border-border/50 bg-card/30 backdrop-blur-xl sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="p-2 hover:bg-secondary/50 rounded-lg transition-colors">
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+            {/* <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Shield className="w-5 h-5 text-primary" />
+            </div> */}
+            <div>
+              <h1 className="text-xl font-bold gradient-text">Admin Dashboard</h1>
+              <p className="text-xs text-muted-foreground">Manage polls & voters</p>
+            </div>
+          </div>
+          {/* <div className="flex items-center gap-3">
+            <AddVoterDialog />
+            <CreatePollDialog onPollCreated={refreshData} />
+          </div> */}
+        </div>
+      </header>
+
       <main className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Stats Overview */}
         <div className="grid sm:grid-cols-4 gap-4 mb-8">
