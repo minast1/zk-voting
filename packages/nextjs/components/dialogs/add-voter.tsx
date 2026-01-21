@@ -6,22 +6,25 @@ import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Spinner } from "../ui/spinner";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 //import { Switch } from "../ui/switch";
 import { zodResolver } from "@hookform/resolvers/zod";
 //import { Textarea } from "../ui/textarea";
 import { Plus, UserPlus, X } from "lucide-react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
-//import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { allowListSchema } from "~~/lib/schema";
+import { useChallengeStore } from "~~/services/store/zk-store";
 
 export function AddVoterDialog() {
   const [open, setOpen] = useState(false);
   const [allowStatus] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  // const { writeContractAsync } = useScaffoldWriteContract({
-  //   contractName: "Voting",
-  // });
+  const pollId = useChallengeStore(state => state.currentPollid);
+  const { writeContractAsync } = useScaffoldWriteContract({
+    contractName: "Voting",
+  });
   const Aschema = allowListSchema(allowStatus);
   type AllowListSchema = z.infer<typeof Aschema>;
   const form = useForm({
@@ -39,33 +42,48 @@ export function AddVoterDialog() {
   const handleBulkAdd = (data: AllowListSchema) => {
     console.log(data);
     setIsLoading(true);
-    // try {
-    //   writeContractAsync(
-    //     {
-    //       functionName: "addVoters",
-    //       args: [data.list.map(item => item.address), [1,2,3,4]],
-    //     },
-    //     {
-    //       blockConfirmations: 1,
-    //       onBlockConfirmation: () => {
-    //         form.reset();
-    //         setIsLoading(false);
-    //       },
-    //     },
-    //   );
-    // } catch (error) {
-    //   console.log(error);
-    //   setIsLoading(false);
-    // }
+    try {
+      writeContractAsync(
+        {
+          functionName: "addVoters",
+          args: [data.list.map(item => item.address), BigInt(pollId || 0n), data.list.map(item => item.status)],
+        },
+        {
+          blockConfirmations: 1,
+          onBlockConfirmation: () => {
+            form.reset();
+            setIsLoading(false);
+          },
+        },
+      );
+    } catch (error) {
+      console.log(error);
+      setIsLoading(false);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
-          <UserPlus className="h-4 w-4" />
-          Manage Voters
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="inline-block w-fit">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={() => setOpen(true)}
+                disabled={typeof pollId === "undefined"}
+              >
+                <UserPlus className="h-4 w-4" />
+                Manage Voters
+              </Button>
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Create a new poll to enable this feature</p>
+          </TooltipContent>
+        </Tooltip>
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg md:max-w-xl">
         <DialogHeader>

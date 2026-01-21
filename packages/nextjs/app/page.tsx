@@ -24,7 +24,7 @@ const Home: NextPage = () => {
   console.log(leafEvents);
   return (
     <>
-      <div className="space-y-12">
+      <div className="space-y-12 max-w-5xl mx-auto">
         {/* Hero Section */}
         <div className="text-center space-y-6 py-8 animate-fade-in">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">

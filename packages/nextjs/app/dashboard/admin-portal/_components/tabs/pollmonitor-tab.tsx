@@ -105,7 +105,7 @@ const PollmonitorTab = () => {
         </p> */}
           </CardContent>
         </Card>
-      ) : isLoading ? (
+      ) : isLoading && isCountingDown ? (
         <PollsSkeleton />
       ) : (
         // <EmptyState />

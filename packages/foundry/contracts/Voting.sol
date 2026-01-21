@@ -96,7 +96,7 @@ contract Voting is Ownable {
     /// Functions ///
     //////////////////
     function createPoll(
-        ////// Make this function accessible for now
+        ////// Remove onlyOwner for demo purposes
         string calldata question,
         uint256 startTime,
         uint256 endTime
@@ -122,7 +122,8 @@ contract Voting is Ownable {
         address[] calldata voters,
         uint256 pollId,
         bool[] calldata statuses
-    ) public onlyOwner {
+    ) public {
+        //Remove onlyOwner for demo purposes
         require(
             voters.length == statuses.length,
             "Voters and statuses length mismatch"
@@ -277,18 +278,7 @@ contract Voting is Ownable {
         emit AllowListRequest(msg.sender, block.timestamp);
     }
 
-    // function triggerExpiration(uint256 pollId) external {
-    //     Poll storage poll = s_polls[pollId];
-    //     if (!poll.exists) {
-    //         revert Voting__InvalidPoll();
-    //     }
-    //     if (block.timestamp > poll.endTime) {
-    //         emit PollExpired(
-    //             pollId,
-    //             block.timestamp,
-    //             poll.yesVotes,
-    //             poll.noVotes
-    //         );
-    //     }
-    // }
+    function getPollCount() external view returns (uint256) {
+        return s_pollCount;
+    }
 }

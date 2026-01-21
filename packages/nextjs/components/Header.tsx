@@ -1,8 +1,6 @@
 "use client";
 
 import React from "react";
-import { usePathname } from "next/navigation";
-import { AddVoterDialog } from "./dialogs/add-voter";
 import { FaucetButton, RainbowKitCustomConnectButton } from "./scaffold-eth";
 //import Image from "next/image";
 //import Link from "next/link";
@@ -22,7 +20,6 @@ interface HeaderProps {
 export const Header = ({ voter, onLogout }: HeaderProps) => {
   const { targetNetwork } = useTargetNetwork();
   const isLocalNetwork = targetNetwork.id === hardhat.id;
-  const pathname = usePathname();
 
   return (
     <header className="border-b border-border/50 bg-card/30 backdrop-blur-xl sticky top-0 z-50">
@@ -39,7 +36,6 @@ export const Header = ({ voter, onLogout }: HeaderProps) => {
 
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
-            {pathname === "/dashboard/admin-portal" && <AddVoterDialog />}
             <RainbowKitCustomConnectButton />
             {isLocalNetwork && <FaucetButton />}
             {/* <SwitchTheme /> */}
