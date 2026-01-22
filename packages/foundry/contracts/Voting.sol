@@ -23,6 +23,7 @@ contract Voting is Ownable {
     error Voting__InvalidPoll();
     error Voting__AlreadyRegistered();
     error Voting__VotingClosed();
+    error Voting__AlreadyRequested();
 
     struct Poll {
         string question;
@@ -36,13 +37,21 @@ contract Voting is Ownable {
         bool exists;
     }
 
+    enum RequestStatus {
+        Pending,
+        Approved,
+        Rejected,
+        None
+    }
+
     ///////////////////////
     /// State Variables ///
     ///////////////////////
 
     uint256 private s_pollCount;
     mapping(uint256 => Poll) private s_polls;
-
+    mapping(uint256 => mapping(address => RequestStatus))
+        private s_requestStatus;
     mapping(address => bool) private s_voters;
     //mapping(uint256 => uint256) private s_allowedVoters;
     mapping(uint256 => mapping(address => bool)) private s_hasRegistered;
@@ -54,16 +63,19 @@ contract Voting is Ownable {
     //////////////
     /// Events ///
     //////////////
-
+    event AccessRequested(
+        uint256 indexed pollId,
+        address indexed requester,
+        uint256 timestamp
+    );
+    event RequestUpdated(
+        uint256 indexed pollId,
+        address indexed requester,
+        RequestStatus status
+    );
     event VoterAdded(address indexed voter, uint256 indexed poll_id);
     event NewLeaf(uint256 index, uint256 value);
     event AllowListRequest(address indexed requester, uint256 timestamp);
-    // event PollExpired(
-    //     uint256 indexed pollId,
-    //     uint256 timestamp,
-    //     uint256 yesVotes,
-    //     uint256 noVotes
-    // );
 
     event CommitmentRegistered(
         uint256 indexed pollId,
@@ -280,5 +292,16 @@ contract Voting is Ownable {
 
     function getPollCount() external view returns (uint256) {
         return s_pollCount;
+    }
+
+    function requestAccess(uint256 pollId) external {
+        if (!s_polls[pollId].exists) {
+            revert Voting__InvalidPoll();
+        }
+        if (s_requestStatus[pollId][msg.sender] != RequestStatus.None) {
+            revert Voting__AlreadyRequested();
+        }
+        s_requestStatus[pollId][msg.sender] = RequestStatus.Pending;
+        emit AccessRequested(pollId, msg.sender, block.timestamp);
     }
 }

@@ -271,6 +271,19 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "requestAccess",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
           name: "requestAllowList",
           inputs: [],
           outputs: [],
@@ -326,6 +339,31 @@ const deployedContracts = {
           ],
           outputs: [],
           stateMutability: "nonpayable",
+        },
+        {
+          type: "event",
+          name: "AccessRequested",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              indexed: true,
+              internalType: "uint256",
+            },
+            {
+              name: "requester",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "timestamp",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
         },
         {
           type: "event",
@@ -442,6 +480,31 @@ const deployedContracts = {
         },
         {
           type: "event",
+          name: "RequestUpdated",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              indexed: true,
+              internalType: "uint256",
+            },
+            {
+              name: "requester",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "status",
+              type: "uint8",
+              indexed: false,
+              internalType: "enum Voting.RequestStatus",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
           name: "VoteCast",
           inputs: [
             {
@@ -527,6 +590,11 @@ const deployedContracts = {
         {
           type: "error",
           name: "Voting__AlreadyRegistered",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "Voting__AlreadyRequested",
           inputs: [],
         },
         {
@@ -857,6 +925,19 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "requestAccess",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
           name: "requestAllowList",
           inputs: [],
           outputs: [],
@@ -912,6 +993,31 @@ const deployedContracts = {
           ],
           outputs: [],
           stateMutability: "nonpayable",
+        },
+        {
+          type: "event",
+          name: "AccessRequested",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              indexed: true,
+              internalType: "uint256",
+            },
+            {
+              name: "requester",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "timestamp",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
         },
         {
           type: "event",
@@ -1028,6 +1134,31 @@ const deployedContracts = {
         },
         {
           type: "event",
+          name: "RequestUpdated",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              indexed: true,
+              internalType: "uint256",
+            },
+            {
+              name: "requester",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "status",
+              type: "uint8",
+              indexed: false,
+              internalType: "enum Voting.RequestStatus",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
           name: "VoteCast",
           inputs: [
             {
@@ -1113,6 +1244,11 @@ const deployedContracts = {
         {
           type: "error",
           name: "Voting__AlreadyRegistered",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "Voting__AlreadyRequested",
           inputs: [],
         },
         {

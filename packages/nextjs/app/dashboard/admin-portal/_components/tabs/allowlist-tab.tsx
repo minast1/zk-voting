@@ -58,20 +58,7 @@ const AllowListTab = () => {
   const allVoters = React.useMemo(() => {
     return Array.from(new Set([...voters, ...liveVoters]));
   }, [voters, liveVoters]);
-  // useScaffoldWatchContractEvent({
-  //   contractName: "Voting",
-  //   eventName: "VoterAdded",
-  //   onLogs: () => {
-  //     refetch();
-  //     // logs.forEach(log => {
-  //     //   const { poll_id, voter } = log.args;
-  //     //   if (typeof poll_id !== "undefined" && poll_id === BigInt(pollId || 0) && typeof voter !== "undefined") {
-  //     //     setVoters(prevVoters => [...prevVoters, voter]);
-  //     //   }
-  //     // });
-  //   },
-  // });
-  // console.log(voters);
+
   return (
     <TabsContent value="voters" className="space-y-4">
       <div className="flex items-center justify-between">

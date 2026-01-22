@@ -3,10 +3,10 @@
 import { useState } from "react";
 //import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent } from "./ui/card";
 //import { Input } from "./ui/input";
 import { Spinner } from "./ui/spinner";
-import { CheckCircle, Shield } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 //import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 //import useVoterData from "~~/hooks/useVoterData";
 import { CommitmentData, useChallengeStore } from "~~/services/store/zk-store";
@@ -82,16 +82,12 @@ export const VoterRegistration = ({ leafEvents }: VoterRegistrationProps) => {
   };
 
   return (
-    <Card className="glass-card border-primary/20 animate-scale-in max-w-md mx-auto">
-      <CardHeader className="text-center pb-2">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/10 flex items-center justify-center animate-float">
-          <Shield className="w-8 h-8 text-primary" />
-        </div>
-        <CardTitle className="text-2xl gradient-text">Register to Vote</CardTitle>
+    <Card className="border-none">
+      {/* <CardHeader className="text-center pb-2">
         <CardDescription className="text-muted-foreground">
           Enter a unique identifier to prove your eligibility. Your identity will be hashed to ensure privacy.
         </CardDescription>
-      </CardHeader>
+      </CardHeader> */}
       <CardContent className="space-y-4">
         {commitmentData && (
           <div className="p-3 rounded-lg bg-secondary/30 border border-border/50">

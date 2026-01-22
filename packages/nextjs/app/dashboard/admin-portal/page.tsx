@@ -35,15 +35,12 @@ const VotingPage: NextPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border/50 bg-card/30 backdrop-blur-xl sticky top-0 z-50">
+      <div className="border-b border-border/50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="p-2 hover:bg-secondary/50 rounded-lg transition-colors">
               <ArrowLeft className="w-5 h-5" />
             </Link>
-            {/* <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Shield className="w-5 h-5 text-primary" />
-            </div> */}
             <div>
               <h1 className="text-xl font-bold gradient-text">Admin Dashboard</h1>
               <p className="text-xs text-muted-foreground">Manage polls & voters</p>
@@ -54,7 +51,7 @@ const VotingPage: NextPage = () => {
             <CreatePollDialog onPollCreated={refreshData} />
           </div> */}
         </div>
-      </header>
+      </div>
 
       <main className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Stats Overview */}
