@@ -32,7 +32,6 @@ const AllowlistStatusCard = ({ status, pollId }: TProps) => {
     }
   };
 
-  console.log(status);
   if (status === "active") {
     return (
       <Card className="glass-card border-success/30">

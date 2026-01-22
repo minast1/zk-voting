@@ -37,6 +37,8 @@ export function useBlockAwareExpiration() {
         if (networkTime >= expiresAt) {
           console.log("On-chain confirmation: Poll has ended.");
           setStatus("expired");
+        } else {
+          setStatus("active");
         }
       } catch (error) {
         console.error("Failed to fetch block for expiration check:", error);

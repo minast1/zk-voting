@@ -1,24 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { useScaffoldEventHistory } from "../../../hooks/scaffold-eth/useScaffoldEventHistory";
+import { useScaffoldEventHistory } from "../../../../hooks/scaffold-eth/useScaffoldEventHistory";
 import { Check, CheckCircle2, Clock, Fingerprint, Loader2, ShieldCheck, Users, X } from "lucide-react";
 //import { getContract, parseEther } from "viem";
 import { Button } from "~~/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "~~/components/ui/card";
 import { Progress } from "~~/components/ui/progress";
 import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
+import { useBlockAwareExpiration } from "~~/hooks/useBlockAwareExpiration";
 import { privateAccount } from "~~/lib/private-account";
 //import uint8ArrayToHexString from "~~/lib/uint-to-hex";
 import { cn } from "~~/lib/utils";
-import { Poll } from "~~/lib/voting";
 import { useChallengeStore } from "~~/services/store/zk-store";
 import { notification } from "~~/utils/scaffold-eth";
 
 interface PollCardProps {
-  poll: Poll;
-  voterHash: string;
-  voterId: string; // Original voter ID needed for ZK proof
+  poll: any;
   animationDelay?: number;
   leafEvents: any[];
 }
@@ -59,20 +57,20 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents }: PollCardProps
 
   const { data: contractInfo } = useDeployedContractInfo({ contractName: "Voting" });
   //console.log(uint8ArrayToHexString(proofData?.proof));
-  const totalVotes = poll.yesVotes + poll.noVotes;
-  const yesPercentage = totalVotes > 0 ? (poll.yesVotes / totalVotes) * 100 : 0;
-  const noPercentage = totalVotes > 0 ? (poll.noVotes / totalVotes) * 100 : 0;
-
-  const timeAgo = (timestamp: number) => {
-    const seconds = Math.floor((Date.now() - timestamp) / 1000);
-    if (seconds < 60) return "just now";
-    const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    const days = Math.floor(hours / 24);
-    return `${days}d ago`;
-  };
+  const totalVotes = Number(poll[1] + poll[2]);
+  const yesPercentage = totalVotes > 0 ? (Number(poll[1]) / totalVotes) * 100 : 0;
+  const noPercentage = totalVotes > 0 ? (Number(poll[2]) / totalVotes) * 100 : 0;
+  const { status } = useBlockAwareExpiration();
+  // const timeAgo = (timestamp: number) => {
+  //   const seconds = Math.floor((Date.now() - timestamp) / 1000);
+  //   if (seconds < 60) return "just now";
+  //   const minutes = Math.floor(seconds / 60);
+  //   if (minutes < 60) return `${minutes}m ago`;
+  //   const hours = Math.floor(minutes / 60);
+  //   if (hours < 24) return `${hours}h ago`;
+  //   const days = Math.floor(hours / 24);
+  //   return `${days}d ago`;
+  // };
 
   const generateMerkleProof = async () => {
     if (!CommitmentData) return;
@@ -87,8 +85,8 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents }: PollCardProps
         body: stringifyBigInt({
           nullifier: CommitmentData.nullifier,
           secret: CommitmentData.secret,
-          root: poll.root, // ✅
-          depth: poll.depth,
+          root: poll[7], // ✅
+          depth: poll[6],
           index: CommitmentData.index,
           leafEvents,
           selectedVote,
@@ -163,7 +161,7 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents }: PollCardProps
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-4">
-          <h3 className="text-lg font-semibold leading-tight">{poll.question}</h3>
+          <h3 className="text-lg font-semibold leading-tight">{poll[0]}</h3>
           {hasVoted && (
             <div className="flex items-center gap-1 text-success text-sm font-medium flex-shrink-0">
               <CheckCircle2 className="w-4 h-4" />
@@ -174,7 +172,7 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents }: PollCardProps
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <span className="flex items-center gap-1">
             <Clock className="w-4 h-4" />
-            {timeAgo(poll.createdAt)}
+            {/* {timeAgo(poll[3])} */}
           </span>
           <span className="flex items-center gap-1">
             <Users className="w-4 h-4" />
@@ -196,7 +194,7 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents }: PollCardProps
             </div> */}
             <p className="text-xs text-muted-foreground text-center">Choose Your Vote</p>
 
-            {!hasVoted && poll.status === "active" ? (
+            {!hasVoted && status === "active" ? (
               <>
                 <div className="grid grid-cols-2 gap-3">
                   <Button
@@ -283,7 +281,7 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents }: PollCardProps
                       Yes
                     </span>
                     <span className="font-mono">
-                      {poll.yesVotes} ({yesPercentage.toFixed(1)}%)
+                      {poll[1]} ({yesPercentage.toFixed(1)}%)
                     </span>
                   </div>
                   <Progress value={yesPercentage} className="h-2 bg-secondary" />
@@ -295,7 +293,7 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents }: PollCardProps
                       No
                     </span>
                     <span className="font-mono">
-                      {poll.noVotes} ({noPercentage.toFixed(1)}%)
+                      {poll[2]} ({noPercentage.toFixed(1)}%)
                     </span>
                   </div>
                   <Progress value={noPercentage} className="h-2 bg-secondary" />
@@ -306,7 +304,7 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents }: PollCardProps
         </>
       </CardContent>
 
-      {poll.status === "active" && selectedVote && leafEvents.length > 0 && proofData?.proof && (
+      {status === "active" && selectedVote && leafEvents.length > 0 && proofData?.proof && (
         <CardFooter className="pt-0">
           <Button className="w-full" onClick={handleSubmitVote} disabled={isSubmitting}>
             {isSubmitting ? (

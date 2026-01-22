@@ -1,80 +1,52 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { useScaffoldEventHistory } from "../../../hooks/scaffold-eth/useScaffoldEventHistory";
-import AllowlistStatusCard from "./_components/allowlist-status";
-import { AlertCircle, ArrowLeft, Shield, Vote } from "lucide-react";
-//import { usePathname, useRouter } from "next/navigation";
+import { PollCard } from "./_components/poll-card";
+import { AlertCircle, ArrowLeft, Clock, Loader2, Shield, Vote } from "lucide-react";
 import { NextPage } from "next";
-import { useAccount } from "wagmi";
-//import { EmptyState } from "~~/app/dashboard/_components/empty-state";
-//import { PollCard } from "~~/app/dashboard/_components/poll-card";
-//import useVoterData from "~~/hooks/useVoterData";
 import { Button } from "~~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~~/components/ui/card";
 import { VoterRegistration } from "~~/components/voter-registration";
-import { useScaffoldWatchContractEvent } from "~~/hooks/scaffold-eth";
+import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 //import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { useBlockAwareExpiration } from "~~/hooks/useBlockAwareExpiration";
+import useVoterManagementLIst from "~~/hooks/useVoterManagementLIst";
+import { useChallengeStore } from "~~/services/store/zk-store";
+import { notification } from "~~/utils/scaffold-eth";
 
 const VotingPage: NextPage = () => {
   const { status, currentPollid } = useBlockAwareExpiration();
-  const { address } = useAccount();
-  console.log(status);
-
-  const [liveVoters, setLiveVoters] = React.useState<Set<string>>(new Set());
-  const { data: voterEvents } = useScaffoldEventHistory({
+  const commitmentData = useChallengeStore(state => state.commitmentData);
+  const { writeContractAsync: requestAccess } = useScaffoldWriteContract({
     contractName: "Voting",
-    eventName: "VoterAdded",
-    //watch: true,
-    filters: { poll_id: currentPollid !== undefined ? BigInt(currentPollid) : undefined },
-    enabled: !!currentPollid,
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { getVoterStatus } = useVoterManagementLIst(currentPollid);
+  const voterStatus = getVoterStatus();
+  const isOnAllowlist = voterStatus === "approved";
+  const isRequestPending = voterStatus === "pending";
+
+  const { data: activePoll } = useScaffoldReadContract({
+    contractName: "Voting",
+    functionName: "getPoll",
+    args: [currentPollid],
   });
 
-  const voters = React.useMemo(() => {
-    if (!voterEvents || currentPollid === undefined) return [];
-
-    const set = new Set<string>();
-
-    voterEvents.forEach(e => {
-      const { poll_id, voter } = e.args;
-      if (poll_id === BigInt(currentPollid) && voter) {
-        set.add(voter);
-      }
-    });
-
-    return Array.from(set);
-  }, [voterEvents, currentPollid]);
-
-  useScaffoldWatchContractEvent({
-    contractName: "Voting",
-    eventName: "VoterAdded",
-    onLogs: logs => {
-      setLiveVoters(prev => {
-        const next = new Set(prev);
-        logs.forEach(log => {
-          const { poll_id, voter } = log.args;
-          if (poll_id === BigInt(currentPollid ?? 0) && voter) {
-            next.add(voter);
-          }
-        });
-        return next;
+  const handleSubmitRequest = async () => {
+    setIsSubmitting(true);
+    try {
+      await requestAccess({
+        args: [currentPollid],
+        functionName: "requestAccess",
       });
-    },
-  });
-
-  const isOnAllowlist = React.useMemo(() => {
-    const allvoters = Array.from(new Set([...voters, ...liveVoters]));
-    return allvoters.includes(address ?? "");
-  }, [voters, liveVoters, address]);
-  // const { data: leafEvents } = useScaffoldEventHistory({
-  //   contractName: "Voting",
-  //   eventName: "NewLeaf",
-  //   watch: true,
-  //   enabled: true,
-  // });
-
+    } catch (error) {
+      notification.error(error instanceof Error ? error.message : String(error));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  console.log(status);
   return (
     <div className="min-h-screen bg-background">
       <div className="border-b border-border/50 backdrop-blur-xl">
@@ -96,25 +68,27 @@ const VotingPage: NextPage = () => {
 
       <main className="container mx-auto px-4 py-8 max-w-5xl space-y-8">
         {/* Identity Section */}
-        <Card className="glass-card border-border/50">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Shield className="w-5 h-5 text-primary" />
-              Your Identity
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {!isOnAllowlist && <AllowlistStatusCard status={status} pollId={currentPollid} />}
-            {isOnAllowlist && (
-              <div>
-                <VoterRegistration leafEvents={voterEvents} />
-              </div>
-            )}
-          </CardContent>
-        </Card>
 
         {/* Active Poll Section */}
         <div className="space-y-4">
+          {isOnAllowlist && status === "active" && commitmentData === null && (
+            <Card className="glass-card border-border/50">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Shield className="w-5 h-5 text-primary" />
+                  Your Identity
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {isOnAllowlist && (
+                  <div>
+                    <VoterRegistration leafEvents={[]} />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-semibold">Active Poll</h2>
@@ -124,52 +98,58 @@ const VotingPage: NextPage = () => {
             </div>
           </div>
 
-          {/* {!activePoll ? ( */}
-          <Card className="glass-card border-border/50 border-dashed">
-            <CardContent className="py-12 text-center">
-              <Vote className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-lg font-medium mb-2">No Active Poll</p>
-              <p className="text-sm text-muted-foreground">Check back later for new voting opportunities</p>
-            </CardContent>
-          </Card>
-          {/* ) : !hasEnteredId ? ( */}
-          <Card className="glass-card border-border/50">
-            <CardContent className="py-8 text-center">
-              <AlertCircle className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
-              <p className="text-muted-foreground">Enter your ID above to view and participate in the poll</p>
-            </CardContent>
-          </Card>
-          {/* ) : !isAllowed ? ( */}
-          <Card className="glass-card border-border/50">
-            <CardContent className="py-8 text-center">
-              <AlertCircle className="w-10 h-10 mx-auto mb-3 text-warning" />
-              <p className="font-medium text-warning mb-2">Not Eligible</p>
-              <p className="text-sm text-muted-foreground mb-4">
-                You need to be on the allowlist to participate. Request access above.
-              </p>
-              <Button
-              // onClick={handleCheckStatus}
-              //  disabled={voterId.length < 6}
-              >
-                Submit Request
-              </Button>
-            </CardContent>
-          </Card>
-          {/* ) : ( */}
-          <></>
-          {/* <PollCard
-            //   poll={activePoll}
-            //   //onVoted={() => setActivePoll(getActivePoll())}
-            //   animationDelay={0}
-            // />
-          )} */}
+          {status === "active" && isOnAllowlist && commitmentData ? (
+            <PollCard
+              poll={activePoll || []}
+              leafEvents={[]}
+              //onVoted={() => setActivePoll(getActivePoll())}
+              animationDelay={0}
+            />
+          ) : status === "active" && !isOnAllowlist ? (
+            <Card className="glass-card border-border/50 w-full">
+              <CardContent className="py-8 text-center">
+                <AlertCircle className="w-10 h-10 mx-auto mb-3 text-warning" />
+                <p className="font-medium text-warning mb-2">Not Eligible</p>
+                <p className="text-sm text-muted-foreground mb-4">
+                  You need to be on the allowlist to participate. Request access above.
+                </p>
+                <Button onClick={handleSubmitRequest} disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      Submitting...
+                    </>
+                  ) : (
+                    "Submit Request"
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+          ) : status === "active" && isRequestPending ? (
+            <Card className="glass-card border-warning/30">
+              <CardContent className="py-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-warning/10 flex items-center justify-center">
+                    <Clock className="w-6 h-6 text-warning" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-warning">Request Pending</p>
+                    <p className="text-sm text-muted-foreground">Your access request is awaiting admin approval</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="glass-card border-border/50 border-dashed bg-inherit">
+              <CardContent className="py-12 text-center">
+                <Vote className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-lg font-medium mb-2">No Active Poll</p>
+                <p className="text-sm text-muted-foreground">Check back later for new voting opportunities</p>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="border-t border-border/50 mt-16 py-8 text-center text-sm text-muted-foreground">
-        <p>Your vote is private and verified through zero-knowledge proofs</p>
-      </footer>
     </div>
   );
 };
