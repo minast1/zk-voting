@@ -1,25 +1,27 @@
 import React from "react";
 import { useScaffoldEventHistory } from "../../../../../hooks/scaffold-eth/useScaffoldEventHistory";
+import StatsSkeleton from "../stats-skeleton";
 import { Users } from "lucide-react";
 import { Card, CardContent } from "~~/components/ui/card";
-import { useScaffoldWatchContractEvent } from "~~/hooks/scaffold-eth";
+//import { useScaffoldWatchContractEvent } from "~~/hooks/scaffold-eth";
 import { useChallengeStore } from "~~/services/store/zk-store";
 
 const AllowedVoters = () => {
   const activePollId = useChallengeStore(state => state.currentPollid);
-  const { data: voterAddedEvents, refetch } = useScaffoldEventHistory({
+  const { data: voterAddedEvents, isLoading } = useScaffoldEventHistory({
     contractName: "Voting",
     eventName: "VoterAdded",
+    fromBlock: 0n,
     watch: true,
   });
 
-  useScaffoldWatchContractEvent({
-    contractName: "Voting",
-    eventName: "VoterAdded",
-    onLogs: () => {
-      refetch();
-    },
-  });
+  // useScaffoldWatchContractEvent({
+  //   contractName: "Voting",
+  //   eventName: "VoterAdded",
+  //   onLogs: () => {
+  //     refetch();
+  //   },
+  // });
 
   const totalAllowdVoters =
     activePollId == null
@@ -27,7 +29,9 @@ const AllowedVoters = () => {
       : voterAddedEvents.reduce((count, event) => {
           return Number(event.args.poll_id) === activePollId ? count + 1 : count;
         }, 0);
-  return (
+  return isLoading ? (
+    <StatsSkeleton />
+  ) : (
     <Card className="glass-card border-border/50">
       <CardContent className="pt-6">
         <div className="flex items-center justify-between">

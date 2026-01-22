@@ -1,14 +1,17 @@
+import StatsSkeleton from "../stats-skeleton";
 import { ClipboardList } from "lucide-react";
 import { Card, CardContent } from "~~/components/ui/card";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 
 const TotalPolls = () => {
-  const { data: pollCount } = useScaffoldReadContract({
+  const { data: pollCount, isLoading } = useScaffoldReadContract({
     contractName: "Voting",
     functionName: "getPollCount",
   });
 
-  return (
+  return isLoading ? (
+    <StatsSkeleton />
+  ) : (
     <Card className="glass-card border-border/50">
       <CardContent className="pt-6">
         <div className="flex items-center justify-between">
