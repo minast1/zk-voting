@@ -40,7 +40,7 @@ export function AddVoterDialog() {
   });
 
   const handleBulkAdd = (data: AllowListSchema) => {
-    console.log(data);
+    // console.log(data);
     setIsLoading(true);
     try {
       writeContractAsync(
@@ -58,6 +58,8 @@ export function AddVoterDialog() {
       );
     } catch (error) {
       console.log(error);
+      setIsLoading(false);
+    } finally {
       setIsLoading(false);
     }
   };

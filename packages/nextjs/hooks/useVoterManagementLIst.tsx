@@ -61,6 +61,7 @@ const useVoterManagementLIst = (pollId: bigint | undefined) => {
     voterManagementList,
     getVoterStatus,
     isLoading: loadingRequests || loadingApprovals,
+    approvalLogs,
   };
 };
 

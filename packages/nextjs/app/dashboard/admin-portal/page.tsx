@@ -11,28 +11,12 @@ import { ArrowLeft } from "lucide-react";
 import { NextPage } from "next";
 import { Badge } from "~~/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "~~/components/ui/tabs";
+import useVoterManagementLIst from "~~/hooks/useVoterManagementLIst";
+import { useChallengeStore } from "~~/services/store/zk-store";
 
 const VotingPage: NextPage = () => {
-  // const pendingRequests = accessRequests.filter(r => r.status === "pending");
-
-  // const handleApprove = (requestId: string) => {
-  //   approveAccessRequest(requestId);
-  //   refreshData();
-  //   toast.success('Request approved');
-  // };
-
-  // const handleReject = (requestId: string) => {
-  //   rejectAccessRequest(requestId);
-  //   refreshData();
-  //   toast.success('Request rejected');
-  // };
-
-  // const handleRemoveVoter = (eoa: string) => {
-  //   removeAllowedVoter(eoa);
-  //   refreshData();
-  //   toast.success('Voter removed from allowlist');
-  // };
-
+  const poll_id = useChallengeStore(state => state.currentPollid);
+  const { voterManagementList: pendingRequests } = useVoterManagementLIst(poll_id ? BigInt(poll_id) : undefined);
   return (
     <div className="min-h-screen bg-background">
       <div className="border-b border-border/50">
@@ -68,11 +52,11 @@ const VotingPage: NextPage = () => {
             <TabsTrigger value="voters">Allowlist</TabsTrigger>
             <TabsTrigger value="requests" className="relative">
               Requests
-              {/* {pendingRequests.length > 0 && ( */}
-              <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs justify-center">
-                5
-              </Badge>
-              {/* )} */}
+              {pendingRequests.length > 0 && (
+                <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs justify-center">
+                  {pendingRequests.length}
+                </Badge>
+              )}
             </TabsTrigger>
           </TabsList>
 
