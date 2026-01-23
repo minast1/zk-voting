@@ -5,10 +5,10 @@ import { Skeleton } from "~~/components/ui/skeleton";
 const PollsSkeleton = () => {
   return (
     <div className="space-y-4">
-      {/* <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <Skeleton className="h-7 w-40" />
         <Skeleton className="h-10 w-32" />
-      </div> */}
+      </div>
       <Card className="glass-card border-border/50">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-4">

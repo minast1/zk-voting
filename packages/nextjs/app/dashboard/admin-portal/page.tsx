@@ -6,6 +6,7 @@ import ActivePoll from "./_components/cards/active-poll";
 import AllowedVoters from "./_components/cards/allowed-voters";
 import PendingRequests from "./_components/cards/pending-requests";
 import TotalPolls from "./_components/cards/total-polls";
+import PollsSkeleton from "./_components/polls-skeleton";
 import AllowListTab from "./_components/tabs/allowlist-tab";
 import PendingRequestsTab from "./_components/tabs/pending-requests";
 import PollmonitorTab from "./_components/tabs/pollmonitor-tab";
@@ -18,7 +19,7 @@ import { useChallengeStore } from "~~/services/store/zk-store";
 
 const VotingPage: NextPage = () => {
   const poll_id = useChallengeStore(state => state.currentPollid);
-  const { voterManagementList: requests } = useVoterManagementLIst(poll_id ? BigInt(poll_id) : undefined);
+  const { voterManagementList: requests, isLoading } = useVoterManagementLIst(poll_id ? BigInt(poll_id) : undefined);
   const pendingRequests = useMemo(() => requests.filter(v => v.status === "pending"), [requests]);
   return (
     <div className="min-h-screen bg-background">
@@ -62,11 +63,16 @@ const VotingPage: NextPage = () => {
               )}
             </TabsTrigger>
           </TabsList>
+          {isLoading ? (
+            <PollsSkeleton />
+          ) : (
+            <>
+              <PollmonitorTab />
 
-          <PollmonitorTab />
-
-          <AllowListTab />
-          <PendingRequestsTab />
+              <AllowListTab />
+              <PendingRequestsTab />
+            </>
+          )}
         </Tabs>
       </main>
     </div>

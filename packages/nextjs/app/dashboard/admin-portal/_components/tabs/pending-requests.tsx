@@ -15,11 +15,9 @@ import { notification } from "~~/utils/scaffold-eth";
 const PendingRequestsTab = () => {
   const poll_id = useChallengeStore(state => state.currentPollid);
   const [isLoading, setIsLoading] = useState(false);
-  const { voterManagementList, refetchRequests, refetchApprovals } = useVoterManagementLIst(
-    poll_id ? BigInt(poll_id) : undefined,
-  );
+  const { voterManagementList } = useVoterManagementLIst(poll_id ? BigInt(poll_id) : undefined);
   const pendingRequests = voterManagementList.filter(v => v.status === "pending");
-  console.log(voterManagementList);
+
   const { writeContractAsync } = useScaffoldWriteContract({ contractName: "Voting" });
   const handleApprove = async (requester: string) => {
     setIsLoading(true);
@@ -33,8 +31,6 @@ const PendingRequestsTab = () => {
           blockConfirmations: 1,
           onBlockConfirmation: () => {
             setIsLoading(false);
-            refetchRequests();
-            refetchApprovals();
           },
         },
       );
@@ -43,8 +39,6 @@ const PendingRequestsTab = () => {
       setIsLoading(false);
     } finally {
       setIsLoading(false);
-      refetchRequests();
-      refetchApprovals();
     }
   };
 

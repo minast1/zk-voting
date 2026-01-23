@@ -2,14 +2,15 @@
 
 import { useState } from "react";
 //import { useRouter } from "next/navigation";
-import { Button } from "./ui/button";
-import { Card, CardContent } from "./ui/card";
+import { Button } from "../../../../components/ui/button";
+import { Card, CardContent } from "../../../../components/ui/card";
 //import { Input } from "./ui/input";
-import { Spinner } from "./ui/spinner";
+import { Spinner } from "../../../../components/ui/spinner";
 import { CheckCircle } from "lucide-react";
-//import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 //import useVoterData from "~~/hooks/useVoterData";
 import { CommitmentData, useChallengeStore } from "~~/services/store/zk-store";
+import { notification } from "~~/utils/scaffold-eth";
 
 interface VoterRegistrationProps {
   leafEvents: any[];
@@ -23,14 +24,15 @@ const generateCommitment = async (): Promise<CommitmentData> => {
 
 export const VoterRegistration = ({ leafEvents }: VoterRegistrationProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isRegistering] = useState(false);
-  // const router = useRouter();
+  const [isRegistering, setIsRegistering] = useState(false);
+
+  const _pollId = useChallengeStore(state => state.currentPollid);
   const setCommitmentData = useChallengeStore(state => state.setCommitmentData);
   const commitmentData = useChallengeStore(state => state.commitmentData);
-  //const updateCommitmentIndex = useChallengeStore(state => state.updateCommitmentIndex);
-  // const { writeContractAsync } = useScaffoldWriteContract({
-  //   contractName: "Voting",
-  // });
+  const updateCommitmentIndex = useChallengeStore(state => state.updateCommitmentIndex);
+  const { writeContractAsync } = useScaffoldWriteContract({
+    contractName: "Voting",
+  });
   console.log(leafEvents);
   const handleGenerateCommitment = async (): Promise<CommitmentData> => {
     setIsGenerating(true);
@@ -52,33 +54,32 @@ export const VoterRegistration = ({ leafEvents }: VoterRegistrationProps) => {
     const commitmentData = await handleGenerateCommitment();
 
     if (!commitmentData) {
-      console.error("Please generate a commitment first");
+      notification.error("Please generate a commitment first");
       return;
     }
-    // try {
-    //   setIsRegistering(true);
-    //   await writeContractAsync(
-    //     {
-    //       functionName: "register",
+    try {
+      setIsRegistering(true);
+      await writeContractAsync(
+        {
+          functionName: "register",
 
-    //       args: [BigInt(commitmentData.commitment)],
-    //     },
-    //     {
-    //       blockConfirmations: 1,
-    //       onBlockConfirmation: () => {
-    //         if (leafEvents) {
-    //           const leafIndex = leafEvents.length;
-    //           updateCommitmentIndex(leafIndex);
-    //           setIsRegistering(false);
-    //           router.push(`/dashboard`);
-    //         }
-    //       },
-    //     },
-    //   );
-    // } catch (error) {
-    //   console.error("Error registering:", error);
-    //   setIsRegistering(false);
-    // }
+          args: [BigInt(commitmentData.commitment), _pollId ? BigInt(_pollId) : BigInt(0)],
+        },
+        {
+          blockConfirmations: 1,
+          onBlockConfirmation: () => {
+            if (leafEvents) {
+              const leafIndex = leafEvents.length;
+              updateCommitmentIndex(leafIndex);
+              setIsRegistering(false);
+            }
+          },
+        },
+      );
+    } catch (error) {
+      notification.error(error instanceof Error ? error.message : String(error));
+      setIsRegistering(false);
+    }
   };
 
   return (

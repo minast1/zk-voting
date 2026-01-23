@@ -61,6 +61,7 @@ export function AddVoterDialog() {
       setIsLoading(false);
     } finally {
       setIsLoading(false);
+      setOpen(false);
     }
   };
 

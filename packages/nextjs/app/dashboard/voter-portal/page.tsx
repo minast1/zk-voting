@@ -5,9 +5,9 @@ import Link from "next/link";
 import { PollCard } from "./_components/poll-card";
 import { AlertCircle, ArrowLeft, Clock, Loader2, Shield, Vote } from "lucide-react";
 import { NextPage } from "next";
+import { VoterRegistration } from "~~/app/dashboard/voter-portal/_components/voter-registration";
 import { Button } from "~~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~~/components/ui/card";
-import { VoterRegistration } from "~~/components/voter-registration";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 //import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { useBlockAwareExpiration } from "~~/hooks/useBlockAwareExpiration";
@@ -22,7 +22,7 @@ const VotingPage: NextPage = () => {
     contractName: "Voting",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { getVoterStatus, refetchApprovals, refetchRequests } = useVoterManagementLIst(currentPollid);
+  const { getVoterStatus } = useVoterManagementLIst(currentPollid);
   const voterStatus = getVoterStatus();
   const isOnAllowlist = voterStatus === "approved";
   const isRequestPending = voterStatus === "pending";
@@ -42,9 +42,9 @@ const VotingPage: NextPage = () => {
           functionName: "requestAccess",
         },
         {
+          blockConfirmations: 1,
           onBlockConfirmation: () => {
-            refetchApprovals();
-            refetchRequests();
+            setIsSubmitting(false);
           },
         },
       );
@@ -52,8 +52,6 @@ const VotingPage: NextPage = () => {
       notification.error(error instanceof Error ? error.message : String(error));
     } finally {
       setIsSubmitting(false);
-      refetchApprovals();
-      refetchRequests();
     }
   };
 
