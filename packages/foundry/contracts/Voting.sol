@@ -38,10 +38,10 @@ contract Voting is Ownable {
     }
 
     enum RequestStatus {
+        None,
         Pending,
         Approved,
-        Rejected,
-        None
+        Rejected
     }
 
     ///////////////////////
@@ -298,9 +298,9 @@ contract Voting is Ownable {
         if (!s_polls[pollId].exists) {
             revert Voting__InvalidPoll();
         }
-        if (s_requestStatus[pollId][msg.sender] != RequestStatus.None) {
-            revert Voting__AlreadyRequested();
-        }
+        // if (s_requestStatus[pollId][msg.sender] != RequestStatus.None) {
+        //     revert Voting__AlreadyRequested();
+        // }
         s_requestStatus[pollId][msg.sender] = RequestStatus.Pending;
         emit AccessRequested(pollId, msg.sender, block.timestamp);
     }

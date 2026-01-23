@@ -10,7 +10,11 @@ export interface VoterRequest {
 }
 const useVoterManagementLIst = (pollId: bigint | undefined) => {
   const { address: userAddress } = useAccount();
-  const { data: requestLogs, isLoading: loadingRequests } = useScaffoldEventHistory({
+  const {
+    data: requestLogs,
+    isLoading: loadingRequests,
+    refetch: refetchRequests,
+  } = useScaffoldEventHistory({
     contractName: "Voting",
     eventName: "AccessRequested",
     filters: { pollId: pollId },
@@ -19,7 +23,11 @@ const useVoterManagementLIst = (pollId: bigint | undefined) => {
     enabled: pollId !== undefined,
   });
 
-  const { data: approvalLogs, isLoading: loadingApprovals } = useScaffoldEventHistory({
+  const {
+    data: approvalLogs,
+    isLoading: loadingApprovals,
+    refetch: refetchApprovals,
+  } = useScaffoldEventHistory({
     contractName: "Voting",
     eventName: "VoterAdded",
     filters: { poll_id: pollId },
@@ -62,6 +70,8 @@ const useVoterManagementLIst = (pollId: bigint | undefined) => {
     getVoterStatus,
     isLoading: loadingRequests || loadingApprovals,
     approvalLogs,
+    refetchRequests,
+    refetchApprovals,
   };
 };
 

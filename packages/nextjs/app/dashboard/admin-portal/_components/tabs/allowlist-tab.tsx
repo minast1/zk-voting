@@ -19,6 +19,7 @@ const AllowListTab = () => {
     //watch: true,
     filters: { poll_id: pollId !== undefined ? BigInt(pollId) : undefined },
     enabled: !!pollId,
+    fromBlock: 0n,
   });
 
   const voters = React.useMemo(() => {

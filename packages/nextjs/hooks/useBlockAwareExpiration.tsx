@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useScaffoldReadContract } from "./scaffold-eth";
+import { useScaffoldReadContract, useTargetNetwork } from "./scaffold-eth";
 import { usePublicClient, useWatchBlockNumber } from "wagmi";
 
 export function useBlockAwareExpiration() {
   const [status, setStatus] = useState<"active" | "expired" | undefined>(undefined);
-  const publicClient = usePublicClient();
+  const { targetNetwork } = useTargetNetwork();
+  const publicClient = usePublicClient({ chainId: targetNetwork.id });
   const { data: currentPollid } = useScaffoldReadContract({
     contractName: "Voting",
     functionName: "getPollCount",
@@ -20,7 +21,9 @@ export function useBlockAwareExpiration() {
   });
 
   useWatchBlockNumber({
+    emitOnBegin: true,
     enabled: currentPollData !== undefined,
+    poll: true,
     onBlockNumber: async blockNumber => {
       // 1. Guard: Only check if there is an active poll to watch
       if (!currentPollData || !currentPollid || !publicClient) return;

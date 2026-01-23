@@ -7,10 +7,9 @@ import { useChallengeStore } from "~~/services/store/zk-store";
 
 const PendingRequests = () => {
   const poll_id = useChallengeStore(state => state.currentPollid);
-  const { voterManagementList: pendingRequests, isLoading } = useVoterManagementLIst(
-    poll_id ? BigInt(poll_id) : undefined,
-  );
+  const { voterManagementList: requests, isLoading } = useVoterManagementLIst(poll_id ? BigInt(poll_id) : undefined);
 
+  const pendingRequests = requests.filter(v => v.status === "pending");
   return isLoading ? (
     <StatsSkeleton />
   ) : (

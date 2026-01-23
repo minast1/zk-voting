@@ -3,7 +3,6 @@ import { useScaffoldEventHistory } from "../../../../../hooks/scaffold-eth/useSc
 import StatsSkeleton from "../stats-skeleton";
 import { Users } from "lucide-react";
 import { Card, CardContent } from "~~/components/ui/card";
-//import { useScaffoldWatchContractEvent } from "~~/hooks/scaffold-eth";
 import { useChallengeStore } from "~~/services/store/zk-store";
 
 const AllowedVoters = () => {
@@ -14,14 +13,6 @@ const AllowedVoters = () => {
     fromBlock: 0n,
     watch: true,
   });
-
-  // useScaffoldWatchContractEvent({
-  //   contractName: "Voting",
-  //   eventName: "VoterAdded",
-  //   onLogs: () => {
-  //     refetch();
-  //   },
-  // });
 
   const totalAllowdVoters =
     activePollId == null

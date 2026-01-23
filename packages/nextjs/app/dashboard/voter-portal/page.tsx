@@ -22,7 +22,7 @@ const VotingPage: NextPage = () => {
     contractName: "Voting",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { getVoterStatus } = useVoterManagementLIst(currentPollid);
+  const { getVoterStatus, refetchApprovals, refetchRequests } = useVoterManagementLIst(currentPollid);
   const voterStatus = getVoterStatus();
   const isOnAllowlist = voterStatus === "approved";
   const isRequestPending = voterStatus === "pending";
@@ -36,17 +36,27 @@ const VotingPage: NextPage = () => {
   const handleSubmitRequest = async () => {
     setIsSubmitting(true);
     try {
-      await requestAccess({
-        args: [currentPollid],
-        functionName: "requestAccess",
-      });
+      await requestAccess(
+        {
+          args: [currentPollid],
+          functionName: "requestAccess",
+        },
+        {
+          onBlockConfirmation: () => {
+            refetchApprovals();
+            refetchRequests();
+          },
+        },
+      );
     } catch (error) {
       notification.error(error instanceof Error ? error.message : String(error));
     } finally {
       setIsSubmitting(false);
+      refetchApprovals();
+      refetchRequests();
     }
   };
-  console.log(status);
+
   return (
     <div className="min-h-screen bg-background">
       <div className="border-b border-border/50 backdrop-blur-xl">
@@ -98,14 +108,14 @@ const VotingPage: NextPage = () => {
             </div>
           </div>
 
-          {status === "active" && isOnAllowlist && commitmentData ? (
+          {status === "active" && isOnAllowlist ? (
             <PollCard
               poll={activePoll || []}
               leafEvents={[]}
               //onVoted={() => setActivePoll(getActivePoll())}
               animationDelay={0}
             />
-          ) : status === "active" && !isOnAllowlist ? (
+          ) : status === "active" && !isOnAllowlist && !isRequestPending ? (
             <Card className="glass-card border-border/50 w-full">
               <CardContent className="py-8 text-center">
                 <AlertCircle className="w-10 h-10 mx-auto mb-3 text-warning" />
