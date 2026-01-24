@@ -3,7 +3,6 @@
 // import Link from "next/link";
 // import { Address } from "@scaffold-ui/components";
 import Link from "next/link";
-import { useScaffoldEventHistory } from "../hooks/scaffold-eth/useScaffoldEventHistory";
 // import { hardhat } from "viem/chains";
 // import { useAccount } from "wagmi";
 // import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
@@ -15,13 +14,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~~/co
 //import { VoterRegistration } from "~~/components/voter-registration";
 
 const Home: NextPage = () => {
-  const { data: leafEvents } = useScaffoldEventHistory({
-    contractName: "Voting",
-    eventName: "NewLeaf",
-    watch: true,
-    enabled: true,
-  });
-  console.log(leafEvents);
   return (
     <>
       <div className="space-y-12 max-w-5xl mx-auto">
