@@ -41,6 +41,7 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents }: PollCardProps
     contractName: "Voting",
     eventName: "VoteCast",
     watch: true,
+    fromBlock: 0n,
     enabled: !!privateAccount?.address,
   });
   console.log(voteCastEvents);

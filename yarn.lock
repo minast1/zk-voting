@@ -42,23 +42,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@aztec/bb.js@npm:0.87.0":
-  version: 0.87.0
-  resolution: "@aztec/bb.js@npm:0.87.0"
-  dependencies:
-    comlink: ^4.4.1
-    commander: ^12.1.0
-    debug: ^4.3.4
-    fflate: ^0.8.0
-    msgpackr: ^1.11.2
-    pako: ^2.1.0
-    tslib: ^2.4.0
-  bin:
-    bb.js: dest/node/main.js
-  checksum: 0c21aae42292b58adffb95451cdba926ae3211f747cefbaa32181bb5ae9fdc1bd5f94f04db0560df8338985af9c1332e9ddc1096fb278b88dec7f4ed42e5a45d
-  languageName: node
-  linkType: hard
-
 "@babel/code-frame@npm:^7.22.13, @babel/code-frame@npm:^7.27.1":
   version: 7.27.1
   resolution: "@babel/code-frame@npm:7.27.1"
@@ -2189,48 +2172,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@msgpackr-extract/msgpackr-extract-darwin-arm64@npm:3.0.3":
-  version: 3.0.3
-  resolution: "@msgpackr-extract/msgpackr-extract-darwin-arm64@npm:3.0.3"
-  conditions: os=darwin & cpu=arm64
-  languageName: node
-  linkType: hard
-
-"@msgpackr-extract/msgpackr-extract-darwin-x64@npm:3.0.3":
-  version: 3.0.3
-  resolution: "@msgpackr-extract/msgpackr-extract-darwin-x64@npm:3.0.3"
-  conditions: os=darwin & cpu=x64
-  languageName: node
-  linkType: hard
-
-"@msgpackr-extract/msgpackr-extract-linux-arm64@npm:3.0.3":
-  version: 3.0.3
-  resolution: "@msgpackr-extract/msgpackr-extract-linux-arm64@npm:3.0.3"
-  conditions: os=linux & cpu=arm64
-  languageName: node
-  linkType: hard
-
-"@msgpackr-extract/msgpackr-extract-linux-arm@npm:3.0.3":
-  version: 3.0.3
-  resolution: "@msgpackr-extract/msgpackr-extract-linux-arm@npm:3.0.3"
-  conditions: os=linux & cpu=arm
-  languageName: node
-  linkType: hard
-
-"@msgpackr-extract/msgpackr-extract-linux-x64@npm:3.0.3":
-  version: 3.0.3
-  resolution: "@msgpackr-extract/msgpackr-extract-linux-x64@npm:3.0.3"
-  conditions: os=linux & cpu=x64
-  languageName: node
-  linkType: hard
-
-"@msgpackr-extract/msgpackr-extract-win32-x64@npm:3.0.3":
-  version: 3.0.3
-  resolution: "@msgpackr-extract/msgpackr-extract-win32-x64@npm:3.0.3"
-  conditions: os=win32 & cpu=x64
-  languageName: node
-  linkType: hard
-
 "@multiformats/blake2@npm:^2.0.2":
   version: 2.0.2
   resolution: "@multiformats/blake2@npm:2.0.2"
@@ -4139,7 +4080,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@se-2/nextjs@workspace:packages/nextjs"
   dependencies:
-    "@aztec/bb.js": 0.87.0
+    "@aztec/bb.js": 0.82.0
     "@heroicons/react": ~2.1.5
     "@hookform/resolvers": ^5.2.2
     "@noir-lang/noir_js": 1.0.0-beta.3
@@ -8209,7 +8150,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"detect-libc@npm:^2.0.0, detect-libc@npm:^2.0.1, detect-libc@npm:^2.0.3":
+"detect-libc@npm:^2.0.0, detect-libc@npm:^2.0.3":
   version: 2.1.2
   resolution: "detect-libc@npm:2.1.2"
   checksum: 471740d52365084c4b2ae359e507b863f2b1d79b08a92835ebdf701918e08fc9cfba175b3db28483ca33b155e1311a91d69dc42c6d192b476f41a9e1f094ce6a
@@ -12471,49 +12412,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"msgpackr-extract@npm:^3.0.2":
-  version: 3.0.3
-  resolution: "msgpackr-extract@npm:3.0.3"
-  dependencies:
-    "@msgpackr-extract/msgpackr-extract-darwin-arm64": 3.0.3
-    "@msgpackr-extract/msgpackr-extract-darwin-x64": 3.0.3
-    "@msgpackr-extract/msgpackr-extract-linux-arm": 3.0.3
-    "@msgpackr-extract/msgpackr-extract-linux-arm64": 3.0.3
-    "@msgpackr-extract/msgpackr-extract-linux-x64": 3.0.3
-    "@msgpackr-extract/msgpackr-extract-win32-x64": 3.0.3
-    node-gyp: latest
-    node-gyp-build-optional-packages: 5.2.2
-  dependenciesMeta:
-    "@msgpackr-extract/msgpackr-extract-darwin-arm64":
-      optional: true
-    "@msgpackr-extract/msgpackr-extract-darwin-x64":
-      optional: true
-    "@msgpackr-extract/msgpackr-extract-linux-arm":
-      optional: true
-    "@msgpackr-extract/msgpackr-extract-linux-arm64":
-      optional: true
-    "@msgpackr-extract/msgpackr-extract-linux-x64":
-      optional: true
-    "@msgpackr-extract/msgpackr-extract-win32-x64":
-      optional: true
-  bin:
-    download-msgpackr-prebuilds: bin/download-prebuilds.js
-  checksum: 3b5ae152821feff843380f0b091afbebd80bd224e644f4410abd33d05da3159eb8b0d45c7dcf7d5226ce1d5c71cd68052f066788f46ea7a3cd8791a1c740a079
-  languageName: node
-  linkType: hard
-
-"msgpackr@npm:^1.11.2":
-  version: 1.11.8
-  resolution: "msgpackr@npm:1.11.8"
-  dependencies:
-    msgpackr-extract: ^3.0.2
-  dependenciesMeta:
-    msgpackr-extract:
-      optional: true
-  checksum: 3f5a78b835c18fb132b4c8e7494e29e5ca4375c7464953b8926baf1facf30eb848ab3156047b1c3b2a4834fd1195df6b7251edcd207f0f3d6d267a5765658816
-  languageName: node
-  linkType: hard
-
 "multiformats@npm:^13.0.0, multiformats@npm:^13.0.1, multiformats@npm:^13.1.0, multiformats@npm:^13.3.1, multiformats@npm:^13.3.6, multiformats@npm:^13.3.7, multiformats@npm:^13.4.0":
   version: 13.4.2
   resolution: "multiformats@npm:13.4.2"
@@ -12741,19 +12639,6 @@ __metadata:
     encoding:
       optional: true
   checksum: d76d2f5edb451a3f05b15115ec89fc6be39de37c6089f1b6368df03b91e1633fd379a7e01b7ab05089a25034b2023d959b47e59759cb38d88341b2459e89d6e5
-  languageName: node
-  linkType: hard
-
-"node-gyp-build-optional-packages@npm:5.2.2":
-  version: 5.2.2
-  resolution: "node-gyp-build-optional-packages@npm:5.2.2"
-  dependencies:
-    detect-libc: ^2.0.1
-  bin:
-    node-gyp-build-optional-packages: bin.js
-    node-gyp-build-optional-packages-optional: optional.js
-    node-gyp-build-optional-packages-test: build-test.js
-  checksum: 3c10d7380901ab5febcd153d2632917fe7507edb15a3405e9ef19801834a4c2162459a67b9944887f737f8718baeb4aaf0002c829a8214011930f2de80e4b42f
   languageName: node
   linkType: hard
 
