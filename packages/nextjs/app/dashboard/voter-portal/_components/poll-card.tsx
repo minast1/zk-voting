@@ -1,15 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useScaffoldEventHistory } from "../../../../hooks/scaffold-eth/useScaffoldEventHistory";
 import { Check, CheckCircle2, Clock, Fingerprint, Loader2, ShieldCheck, Users, X } from "lucide-react";
+import { useConnectorClient, usePublicClient } from "wagmi";
 //import { getContract, parseEther } from "viem";
 import { Button } from "~~/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "~~/components/ui/card";
 import { Progress } from "~~/components/ui/progress";
 import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
+import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { useBlockAwareExpiration } from "~~/hooks/useBlockAwareExpiration";
-import { privateAccount } from "~~/lib/private-account";
+import { invokeLocalBurner } from "~~/lib/local-burner";
+import { timeAgo } from "~~/lib/time-converter";
 //import uint8ArrayToHexString from "~~/lib/uint-to-hex";
 import { cn } from "~~/lib/utils";
 import { useChallengeStore } from "~~/services/store/zk-store";
@@ -19,15 +21,20 @@ interface PollCardProps {
   poll: any;
   animationDelay?: number;
   leafEvents: any[];
+  _pollId: number;
 }
 
 function stringifyBigInt(obj: any) {
   return JSON.stringify(obj, (_, value) => (typeof value === "bigint" ? value.toString() : value));
 }
 
-export const PollCard = ({ poll, animationDelay = 0, leafEvents }: PollCardProps) => {
+export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: PollCardProps) => {
   const [selectedVote, setSelectedVote] = useState<"yes" | "no" | null>(null);
-
+  const { targetNetwork } = useTargetNetwork();
+  const publicClient = usePublicClient({ chainId: targetNetwork.id });
+  const { data: mainWalletClient } = useConnectorClient({
+    chainId: targetNetwork.id,
+  });
   const CommitmentData = useChallengeStore(state => state.commitmentData);
   const setProofGenerated = useChallengeStore(state => state.setProofGenerated);
   const setProofData = useChallengeStore(state => state.setProofData);
@@ -37,31 +44,12 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents }: PollCardProps
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGeneratingProof, setIsGenerating] = useState(false);
 
-  const { data: voteCastEvents } = useScaffoldEventHistory({
-    contractName: "Voting",
-    eventName: "VoteCast",
-    watch: true,
-    fromBlock: 0n,
-    enabled: !!privateAccount?.address,
-  });
-  console.log(voteCastEvents);
-
   const { data: contractInfo } = useDeployedContractInfo({ contractName: "Voting" });
   //console.log(uint8ArrayToHexString(proofData?.proof));
   const totalVotes = Number(poll[1] + poll[2]);
   const yesPercentage = totalVotes > 0 ? (Number(poll[1]) / totalVotes) * 100 : 0;
   const noPercentage = totalVotes > 0 ? (Number(poll[2]) / totalVotes) * 100 : 0;
   const { status } = useBlockAwareExpiration();
-  // const timeAgo = (timestamp: number) => {
-  //   const seconds = Math.floor((Date.now() - timestamp) / 1000);
-  //   if (seconds < 60) return "just now";
-  //   const minutes = Math.floor(seconds / 60);
-  //   if (minutes < 60) return `${minutes}m ago`;
-  //   const hours = Math.floor(minutes / 60);
-  //   if (hours < 24) return `${hours}h ago`;
-  //   const days = Math.floor(hours / 24);
-  //   return `${days}d ago`;
-  // };
 
   const generateMerkleProof = async () => {
     if (!CommitmentData) return;
@@ -75,6 +63,7 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents }: PollCardProps
 
         body: stringifyBigInt({
           nullifier: CommitmentData.nullifier,
+          poll_id: _pollId,
           secret: CommitmentData.secret,
           root: poll[7], // ✅
           depth: poll[6],
@@ -98,38 +87,28 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents }: PollCardProps
   const handleSubmitVote = async () => {
     setIsSubmitting(true);
     try {
-      if (!CommitmentData?.secret || !proofData?.proof || !contractInfo?.address) {
+      if (!CommitmentData?.secret || !proofData?.proof || !contractInfo?.address || !mainWalletClient) {
         console.log("No commitment data");
         return;
       }
-      //check if account has enough gas
 
-      // const currentBal = await publicClient.getBalance({ address: privateAccount.address as `0x${string}` });
-      // if (currentBal) {
-      // }
-      // //fund the private account with ETH
-      // await testClient.setBalance({
-      //   address: privateAccount.address as `0x${string}`,
-      //   value: parseEther("0.02"),
-      // });
+      if (mainWalletClient.chain.id === 31337) {
+        const txReceipt = await invokeLocalBurner({
+          proofData,
+          pollId: _pollId,
+          contractInfo,
+          publicClient,
+          mainWalletClient,
+        });
 
-      // const viemContract = getContract({
-      //   address: contractInfo.address as `0x${string}`,
-      //   abi: contractInfo.abi,
-      //   client: voterClient,
-      // });
-      //  const hash = `0x${randomBytes(32).toString("hex")}`;
-      //  await viemContract.write.vote([
-      //   uint8ArrayToHexString(proofData.proof),
-      //   proofData.publicInputs[0],
-      //   proofData.publicInputs[1],
-      //   proofData.publicInputs[2],
-      //   proofData.publicInputs[3],
-      // ]);
-      // await publicClient.waitForTransactionReceipt({ hash });
-      notification.success("Vote submitted successfully");
-      setIsSubmitting(false);
-      setHasVoted(true);
+        if (txReceipt.status === "success") {
+          notification.success("Vote submitted successfully");
+          setHasVoted(true);
+          setIsSubmitting(false);
+        }
+      } else {
+        // invokeProductionBurner
+      }
     } catch (error) {
       notification.error(error instanceof Error ? error.message : String(error));
     } finally {
@@ -163,7 +142,7 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents }: PollCardProps
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <span className="flex items-center gap-1">
             <Clock className="w-4 h-4" />
-            {/* {timeAgo(poll[3])} */}
+            {timeAgo(Number(poll[3]))}
           </span>
           <span className="flex items-center gap-1">
             <Users className="w-4 h-4" />
@@ -185,7 +164,7 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents }: PollCardProps
             </div> */}
             <p className="text-xs text-muted-foreground text-center">Choose Your Vote</p>
 
-            {!hasVoted && status === "active" ? (
+            {!hasVoted && status === "active" && typeof CommitmentData?.index !== undefined ? (
               <>
                 <div className="grid grid-cols-2 gap-3">
                   <Button
@@ -295,7 +274,7 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents }: PollCardProps
         </>
       </CardContent>
 
-      {status === "active" && selectedVote && leafEvents.length > 0 && proofData?.proof && (
+      {status === "active" && !hasVoted && selectedVote && leafEvents.length > 0 && proofData?.proof && (
         <CardFooter className="pt-0">
           <Button className="w-full" onClick={handleSubmitVote} disabled={isSubmitting}>
             {isSubmitting ? (

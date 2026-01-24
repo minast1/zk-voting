@@ -44,7 +44,7 @@ async function main() {
   // 4. Load Noir Circuit
   const circuitPath = path.resolve(
     process.cwd(),
-    "../circuits/target/circuits.json"
+    "../circuits/target/circuits.json",
   );
   const circuitFile = fs.readFileSync(circuitPath, "utf-8");
   const parsedCiruit = JSON.parse(circuitFile);
@@ -78,7 +78,7 @@ async function main() {
     [
       proof,
       toBytes32(nullifierHash), // Convert decimal BigInt to 32-byte he
-    ]
+    ],
   );
   process.stdout.write(result);
   //return result;

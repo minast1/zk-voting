@@ -8,7 +8,7 @@ export interface CommitmentData {
   index?: number;
 }
 
-type ProofData = {
+export type ProofData = {
   proof: Uint8Array;
   publicInputs: any[];
 };

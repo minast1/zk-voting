@@ -3,22 +3,22 @@ import { getCircuitData } from "./getCircuit";
 import { UltraHonkBackend } from "@aztec/bb.js";
 import { Noir } from "@noir-lang/noir_js";
 import { LeanIMT } from "@zk-kit/lean-imt";
-import { poseidon1, poseidon2 } from "poseidon-lite";
+import { poseidon2 } from "poseidon-lite";
 import { encodeAbiParameters, toHex } from "viem";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
-  const { nullifier, secret, root, depth, index, leafEvents, selectedVote } = await request.json();
-  const nullifierHash = poseidon1([BigInt(nullifier)]);
+  const { nullifier, secret, root, depth, index, leafEvents, selectedVote, poll_id } = await request.json();
+  const nullifierHash = poseidon2([BigInt(nullifier), BigInt(poll_id)]);
   const calculatedTree = new LeanIMT((a: bigint, b: bigint) => poseidon2([a, b]));
   const leaves = leafEvents.map((event: any) => {
     return event?.args.value;
   });
   const leavesReversed = leaves.reverse();
   calculatedTree.insertMany(leavesReversed as bigint[]);
-  const calculatedProof = calculatedTree.generateProof(index as number);
+  const calculatedProof = calculatedTree.generateProof(Number(index));
   const sibs = calculatedProof.siblings.map((sib: bigint) => sib.toString());
   const lengthDiff = 16 - sibs.length;
   for (let i = 0; i < lengthDiff; i++) {
@@ -26,11 +26,12 @@ export async function POST(request: Request) {
   }
   const input = {
     null_hash: nullifierHash.toString(),
+    root: root.toString(),
+    vote: selectedVote === "yes" ? true : false,
+    depth: String(depth),
+    poll_id: BigInt(poll_id).toString(),
     nullifier: BigInt(nullifier).toString(),
     secret: BigInt(secret).toString(),
-    root: root.toString(),
-    vote: selectedVote === "yes" ? "1" : "0",
-    depth: String(depth),
     index: String(index as number),
     siblings: sibs,
   };

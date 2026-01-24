@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useScaffoldReadContract, useTargetNetwork } from "./scaffold-eth";
 import { usePublicClient, useWatchBlockNumber } from "wagmi";
+import { useChallengeStore } from "~~/services/store/zk-store";
 
 export function useBlockAwareExpiration() {
   const [status, setStatus] = useState<"active" | "expired" | undefined>(undefined);
+  const resetStore = useChallengeStore(state => state.reset);
   const { targetNetwork } = useTargetNetwork();
   const publicClient = usePublicClient({ chainId: targetNetwork.id });
   const { data: currentPollid } = useScaffoldReadContract({
@@ -40,6 +42,7 @@ export function useBlockAwareExpiration() {
         if (networkTime >= expiresAt) {
           console.log("On-chain confirmation: Poll has ended.");
           setStatus("expired");
+          resetStore();
         } else {
           setStatus("active");
         }

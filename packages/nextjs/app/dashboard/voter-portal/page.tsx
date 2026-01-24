@@ -32,7 +32,7 @@ const VotingPage: NextPage = () => {
     functionName: "getPoll",
     args: [currentPollid],
   });
-  console.log(voterRegisteredLogs);
+
   const handleSubmitRequest = async () => {
     setIsSubmitting(true);
     try {
@@ -110,6 +110,7 @@ const VotingPage: NextPage = () => {
             <PollCard
               poll={activePoll || []}
               leafEvents={voterRegisteredLogs || []}
+              _pollId={currentPollid ? Number(currentPollid) : 0}
               //onVoted={() => setActivePoll(getActivePoll())}
               animationDelay={0}
             />
