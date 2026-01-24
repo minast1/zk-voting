@@ -44,16 +44,6 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents }: PollCardProps
     enabled: !!privateAccount?.address,
   });
   console.log(voteCastEvents);
-  // useEffect(() => {
-  //   if (privateAccount?.address && voteCastEvents) {
-  //     const hasVotedAlready = voteCastEvents.some(
-  //       event => event.args?.voter?.toLowerCase() === privateAccount.address.toLowerCase(),
-  //     );
-  //     setHasVoted(hasVotedAlready);
-  //   } else {
-  //     setHasVoted(false);
-  //   }
-  // }, [setHasVoted, voteCastEvents]);
 
   const { data: contractInfo } = useDeployedContractInfo({ contractName: "Voting" });
   //console.log(uint8ArrayToHexString(proofData?.proof));

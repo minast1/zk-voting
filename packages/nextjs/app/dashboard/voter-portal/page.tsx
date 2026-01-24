@@ -22,7 +22,7 @@ const VotingPage: NextPage = () => {
     contractName: "Voting",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { getVoterStatus } = useVoterManagementLIst(currentPollid);
+  const { getVoterStatus, voterRegisteredLogs } = useVoterManagementLIst(currentPollid);
   const voterStatus = getVoterStatus();
   const isOnAllowlist = voterStatus === "approved";
   const isRequestPending = voterStatus === "pending";
@@ -32,7 +32,7 @@ const VotingPage: NextPage = () => {
     functionName: "getPoll",
     args: [currentPollid],
   });
-
+  console.log(voterRegisteredLogs);
   const handleSubmitRequest = async () => {
     setIsSubmitting(true);
     try {
@@ -90,7 +90,7 @@ const VotingPage: NextPage = () => {
               <CardContent className="space-y-4">
                 {isOnAllowlist && (
                   <div>
-                    <VoterRegistration leafEvents={[]} />
+                    <VoterRegistration _pollId={currentPollid ? Number(currentPollid) : 0} />
                   </div>
                 )}
               </CardContent>
@@ -106,10 +106,10 @@ const VotingPage: NextPage = () => {
             </div>
           </div>
 
-          {status === "active" && isOnAllowlist ? (
+          {status === "active" && isOnAllowlist && typeof commitmentData?.index !== undefined ? (
             <PollCard
               poll={activePoll || []}
-              leafEvents={[]}
+              leafEvents={voterRegisteredLogs || []}
               //onVoted={() => setActivePoll(getActivePoll())}
               animationDelay={0}
             />
@@ -147,7 +147,7 @@ const VotingPage: NextPage = () => {
                 </div>
               </CardContent>
             </Card>
-          ) : (
+          ) : status !== "active" ? (
             <Card className="glass-card border-border/50 border-dashed bg-inherit">
               <CardContent className="py-12 text-center">
                 <Vote className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
@@ -155,7 +155,7 @@ const VotingPage: NextPage = () => {
                 <p className="text-sm text-muted-foreground">Check back later for new voting opportunities</p>
               </CardContent>
             </Card>
-          )}
+          ) : null}
         </div>
       </main>
     </div>

@@ -62,10 +62,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 1,
+      deployedOnBlock: 2,
     },
     Voting: {
-      address: "0x8ce361602b935680e8dec218b820ff5056beb7af",
+      address: "0x82c6d3ed4cd33d8ec1e51d0b5cc1d822eaa0c3dc",
       abi: [
         {
           type: "constructor",
@@ -397,26 +397,7 @@ const deployedContracts = {
             {
               name: "index",
               type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
-            {
-              name: "value",
-              type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "NewLeaf",
-          inputs: [
-            {
-              name: "index",
-              type: "uint256",
-              indexed: false,
+              indexed: true,
               internalType: "uint256",
             },
             {
@@ -656,7 +637,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 1,
+      deployedOnBlock: 24,
     },
   },
   11155111: {
@@ -1051,26 +1032,7 @@ const deployedContracts = {
             {
               name: "index",
               type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
-            {
-              name: "value",
-              type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "NewLeaf",
-          inputs: [
-            {
-              name: "index",
-              type: "uint256",
-              indexed: false,
+              indexed: true,
               internalType: "uint256",
             },
             {

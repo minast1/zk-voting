@@ -7,13 +7,15 @@ import { Card, CardContent } from "../../../../components/ui/card";
 //import { Input } from "./ui/input";
 import { Spinner } from "../../../../components/ui/spinner";
 import { CheckCircle } from "lucide-react";
-import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { decodeEventLog, parseAbi } from "viem";
+import { usePublicClient } from "wagmi";
+import { useDeployedContractInfo, useScaffoldWriteContract, useTargetNetwork } from "~~/hooks/scaffold-eth";
 //import useVoterData from "~~/hooks/useVoterData";
 import { CommitmentData, useChallengeStore } from "~~/services/store/zk-store";
 import { notification } from "~~/utils/scaffold-eth";
 
 interface VoterRegistrationProps {
-  leafEvents: any[];
+  _pollId: number | undefined;
 }
 
 const generateCommitment = async (): Promise<CommitmentData> => {
@@ -22,18 +24,19 @@ const generateCommitment = async (): Promise<CommitmentData> => {
   return { commitment, nullifier, secret };
 };
 
-export const VoterRegistration = ({ leafEvents }: VoterRegistrationProps) => {
+export const VoterRegistration = ({ _pollId }: VoterRegistrationProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
-
-  const _pollId = useChallengeStore(state => state.currentPollid);
+  const { targetNetwork } = useTargetNetwork();
+  const publicClient = usePublicClient({ chainId: targetNetwork.id });
   const setCommitmentData = useChallengeStore(state => state.setCommitmentData);
   const commitmentData = useChallengeStore(state => state.commitmentData);
+  const { data: votingContract } = useDeployedContractInfo({ contractName: "Voting" });
   const updateCommitmentIndex = useChallengeStore(state => state.updateCommitmentIndex);
   const { writeContractAsync } = useScaffoldWriteContract({
     contractName: "Voting",
   });
-  console.log(leafEvents);
+
   const handleGenerateCommitment = async (): Promise<CommitmentData> => {
     setIsGenerating(true);
     try {
@@ -44,6 +47,7 @@ export const VoterRegistration = ({ leafEvents }: VoterRegistrationProps) => {
       return commitment;
     } catch (error) {
       console.log("Error generating commitment:", error);
+      setIsGenerating(false);
       throw error;
     } finally {
       setIsGenerating(false);
@@ -51,33 +55,38 @@ export const VoterRegistration = ({ leafEvents }: VoterRegistrationProps) => {
   };
 
   const handleRegister = async () => {
-    const commitmentData = await handleGenerateCommitment();
-
-    if (!commitmentData) {
-      notification.error("Please generate a commitment first");
+    if (!_pollId || !publicClient || !votingContract) {
+      notification.error("No Active Poll..Please Generate Poll First");
       return;
     }
+    const commitmentData = await handleGenerateCommitment();
+    const { commitment } = commitmentData;
+    setIsRegistering(true);
     try {
-      setIsRegistering(true);
-      await writeContractAsync(
+      const hash = await writeContractAsync(
         {
           functionName: "register",
 
-          args: [BigInt(commitmentData.commitment), _pollId ? BigInt(_pollId) : BigInt(0)],
+          args: [BigInt(commitment), BigInt(_pollId)],
         },
         {
           blockConfirmations: 1,
-          onBlockConfirmation: () => {
-            if (leafEvents) {
-              const leafIndex = leafEvents.length;
-              updateCommitmentIndex(leafIndex);
-              setIsRegistering(false);
-            }
-          },
         },
       );
+      if (hash) {
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+        const logs = receipt.logs[0];
+        const decodedLog = decodeEventLog({
+          abi: parseAbi(["event CommitmentRegistered(uint256 indexed pollId,uint256 indexed index,uint256 value)"]),
+          data: logs.data,
+          topics: logs.topics,
+        });
+        updateCommitmentIndex(Number(decodedLog.args.index));
+      }
     } catch (error) {
       notification.error(error instanceof Error ? error.message : String(error));
+      setIsRegistering(false);
+    } finally {
       setIsRegistering(false);
     }
   };

@@ -74,12 +74,12 @@ contract Voting is Ownable {
         RequestStatus status
     );
     event VoterAdded(address indexed voter, uint256 indexed poll_id);
-    event NewLeaf(uint256 index, uint256 value);
+    // event NewLeaf(uint256 index, uint256 value);
     event AllowListRequest(address indexed requester, uint256 timestamp);
 
     event CommitmentRegistered(
         uint256 indexed pollId,
-        uint256 index,
+        uint256 indexed index,
         uint256 value
     );
     event PollCreated(

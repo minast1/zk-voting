@@ -16,6 +16,9 @@ const ACCESS_REQUESTED_ABI = parseAbiItem(
 );
 const VOTER_ADDED_ABI = parseAbiItem("event VoterAdded(address indexed voter, uint256 indexed poll_id)");
 
+const VOTER_REGISTERED_ABI = parseAbiItem(
+  "event CommitmentRegistered(uint256 indexed pollId, uint256 indexed index, uint256 value)",
+);
 const useVoterManagementLIst = (pollId: bigint | undefined) => {
   // const {targetNetwork} = useTargetNetwork();
   const { address: userAddress } = useAccount();
@@ -28,27 +31,30 @@ const useVoterManagementLIst = (pollId: bigint | undefined) => {
     queryKey: ["voterManagement", contractData?.address, pollId?.toString],
     queryFn: async () => {
       //Fetch both sets of logs in parallel
-      const [requestLogs, approvalLogs] = await Promise.all([
+      const [requestLogs, approvalLogs, voterRegisteredLogs] = await Promise.all([
         publicClient!.getLogs({
           address: contractData!.address,
-
           fromBlock: 0n,
-          toBlock: "latest",
           event: ACCESS_REQUESTED_ABI,
           args: { pollId },
         }),
 
         publicClient!.getLogs({
           address: contractData!.address,
-
           fromBlock: 0n,
-          toBlock: "latest",
           event: VOTER_ADDED_ABI,
           args: { poll_id: pollId },
         }),
+
+        publicClient!.getLogs({
+          address: contractData!.address,
+          fromBlock: 0n,
+          event: VOTER_REGISTERED_ABI,
+          args: { pollId },
+        }),
       ]);
 
-      return { requestLogs, approvalLogs };
+      return { requestLogs, approvalLogs, voterRegisteredLogs };
     },
     refetchInterval: 5000, //5seconds
   });
@@ -87,6 +93,7 @@ const useVoterManagementLIst = (pollId: bigint | undefined) => {
     getVoterStatus,
     isLoading,
     approvalLogs: logs?.approvalLogs,
+    voterRegisteredLogs: logs?.voterRegisteredLogs,
   };
 };
 
