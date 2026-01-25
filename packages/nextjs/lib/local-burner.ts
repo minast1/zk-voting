@@ -1,6 +1,7 @@
 import { privateAccount } from "./private-account";
 import uint8ArrayToHexString from "./uint-to-hex";
-import { createWalletClient, http, parseEther, publicActions, walletActions } from "viem";
+import { createWalletClient, http, parseEther, publicActions } from "viem";
+import { sendTransaction } from "viem/actions";
 import { ProofData } from "~~/services/store/zk-store";
 
 type TProps = {
@@ -19,20 +20,21 @@ export async function invokeLocalBurner({ proofData, pollId, contractInfo, publi
     transport: http(),
   }).extend(publicActions);
 
-  const client = mainWalletClient.extend(walletActions);
   try {
     const balance = await publicClient.getBalance({
       address: burnerAccount.address as `0x${string}`,
     });
 
     if (balance < parseEther("0.2")) {
-      const fundTx = await client.sendTransaction({
+      const fundTx = await sendTransaction(mainWalletClient, {
+        chain: mainWalletClient.chain,
         to: burnerAccount.address as `0x${string}`,
         value: parseEther("0.2"),
+        account: mainWalletClient.account,
       });
 
       if (!fundTx) throw new Error("Failed to fund burner account");
-      await publicClient.waitForTransactionReceipt({ hash: fundTx.hash });
+      await publicClient.waitForTransactionReceipt({ hash: fundTx });
     }
 
     const hash = await burnerClient.writeContract({

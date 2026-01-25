@@ -98,7 +98,7 @@ export function CreatePollDialog() {
             setLoading(false);
 
             setQuestion("");
-            setDuration("3600");
+            setDuration("300");
 
             setError("");
           },

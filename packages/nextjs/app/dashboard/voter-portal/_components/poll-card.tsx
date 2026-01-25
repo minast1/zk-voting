@@ -102,6 +102,7 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
         });
 
         if (txReceipt.status === "success") {
+          //add txn link to verify
           notification.success("Vote submitted successfully");
           setHasVoted(true);
           setIsSubmitting(false);

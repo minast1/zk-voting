@@ -62,7 +62,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 2,
+      deployedOnBlock: 1,
     },
     Voting: {
       address: "0x8ce361602b935680e8dec218b820ff5056beb7af",
@@ -637,7 +637,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 2,
+      deployedOnBlock: 1,
     },
   },
   11155111: {
