@@ -11,6 +11,7 @@ import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { useBlockAwareExpiration } from "~~/hooks/useBlockAwareExpiration";
 import { invokeLocalBurner } from "~~/lib/local-burner";
+import { invokeSepoliaBurner } from "~~/lib/sepolia-burner";
 import { timeAgo } from "~~/lib/time-converter";
 //import uint8ArrayToHexString from "~~/lib/uint-to-hex";
 import { cn } from "~~/lib/utils";
@@ -108,7 +109,17 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
           setIsSubmitting(false);
         }
       } else {
-        // invokeProductionBurner
+        const txReciept = await invokeSepoliaBurner({
+          proofData,
+          pollId: _pollId,
+          contractInfo,
+        });
+
+        if (txReciept?.status === "success") {
+          notification.success("Vote submitted successfully");
+          setHasVoted(true);
+          setIsSubmitting(false);
+        }
       }
     } catch (error) {
       notification.error(error instanceof Error ? error.message : String(error));

@@ -34,21 +34,21 @@ const useVoterManagementLIst = (pollId: bigint | undefined) => {
       const [requestLogs, approvalLogs, voterRegisteredLogs] = await Promise.all([
         publicClient!.getLogs({
           address: contractData!.address,
-          fromBlock: 0n,
+          fromBlock: BigInt(process.env.NEXT_PUBLIC_DEPLOYMENT_BLOCK || 0n), //use deployment block as fromBlock
           event: ACCESS_REQUESTED_ABI,
           args: { pollId },
         }),
 
         publicClient!.getLogs({
           address: contractData!.address,
-          fromBlock: 0n,
+          fromBlock: BigInt(process.env.NEXT_PUBLIC_DEPLOYMENT_BLOCK || 0n),
           event: VOTER_ADDED_ABI,
           args: { poll_id: pollId },
         }),
 
         publicClient!.getLogs({
           address: contractData!.address,
-          fromBlock: 0n,
+          fromBlock: BigInt(process.env.NEXT_PUBLIC_DEPLOYMENT_BLOCK || 0n),
           event: VOTER_REGISTERED_ABI,
           args: { pollId },
         }),

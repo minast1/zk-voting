@@ -10,7 +10,7 @@ const AllowedVoters = () => {
   const { data: voterAddedEvents, isLoading } = useScaffoldEventHistory({
     contractName: "Voting",
     eventName: "VoterAdded",
-    fromBlock: 0n,
+    fromBlock: BigInt(process.env.NEXT_PUBLIC_DEPLOYMENT_BLOCK || 0n),
     watch: true,
   });
 

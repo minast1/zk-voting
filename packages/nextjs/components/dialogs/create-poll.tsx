@@ -51,6 +51,7 @@ export function CreatePollDialog() {
     if (!publicClient || !votingContractInfo) return;
     const unwatch = publicClient.watchContractEvent({
       address: votingContractInfo.address,
+
       abi: votingContractInfo.abi,
       eventName: "PollCreated",
       onLogs: logs => {
