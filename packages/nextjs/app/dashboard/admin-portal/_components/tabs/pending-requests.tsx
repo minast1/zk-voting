@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { CheckCircle2, ClipboardList, XCircle } from "lucide-react";
+import { CheckCircle2, ClipboardList } from "lucide-react";
 import { Address } from "~~/components/Address/address";
 import { Badge } from "~~/components/ui/badge";
 //import { Badge } from "~~/components/ui/badge";
@@ -88,7 +88,7 @@ const PendingRequestsTab = () => {
                         </>
                       )}
                     </Button>
-                    <Button
+                    {/* <Button
                       size="sm"
                       variant="outline"
                       className="gap-1 text-destructive hover:text-destructive"
@@ -96,7 +96,7 @@ const PendingRequestsTab = () => {
                     >
                       <XCircle className="w-4 h-4" />
                       Reject
-                    </Button>
+                    </Button> */}
                   </div>
                 </div>
               </CardContent>

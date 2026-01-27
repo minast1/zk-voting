@@ -9,6 +9,7 @@ export interface VoterRequest {
   address: string;
   status: VoterStatus;
   timestamp: bigint;
+  addedByAdmin: boolean;
 }
 
 const ACCESS_REQUESTED_ABI = parseAbiItem(
@@ -60,23 +61,38 @@ const useVoterManagementLIst = (pollId: bigint | undefined) => {
   });
 
   const voterManagementList = React.useMemo(() => {
-    if (!logs?.requestLogs) return [];
+    if (!logs) return [];
 
-    const approvedSet = new Set(logs.approvalLogs?.map(e => e.args.voter?.toLocaleLowerCase()));
+    // const approvedSet = new Set(logs.approvalLogs?.map(e => e.args.voter?.toLocaleLowerCase()));
 
-    const uniqueRequests = new Map<string, VoterRequest>();
+    const voterMap = new Map<string, VoterRequest>();
 
     logs.requestLogs.forEach(req => {
       const addr = req.args.requester as string;
-      const isApproved = approvedSet.has(addr.toLocaleLowerCase());
-
-      uniqueRequests.set(addr.toLocaleLowerCase(), {
+      voterMap.set(addr.toLocaleLowerCase(), {
         address: addr,
-        status: isApproved ? "approved" : "pending",
+        status: "pending",
         timestamp: req.args.timestamp || 0n,
+        addedByAdmin: false,
       } as VoterRequest);
     });
-    return Array.from(uniqueRequests.values()).sort((a, b) => Number(b.timestamp - a.timestamp));
+
+    logs.approvalLogs.forEach(req => {
+      const addr = (req.args.voter as string).toLocaleLowerCase();
+      const existing = voterMap.get(addr);
+      if (existing) {
+        //has been approved
+        existing.status = "approved";
+      } else {
+        voterMap.set(addr, {
+          address: addr,
+          status: "approved",
+          timestamp: 0n,
+          addedByAdmin: true,
+        });
+      }
+    });
+    return Array.from(voterMap.values()).sort((a, b) => Number(b.timestamp - a.timestamp));
   }, [logs]);
   const getVoterStatus = (): VoterStatus => {
     if (!userAddress || !pollId || !logs?.requestLogs) return "none";

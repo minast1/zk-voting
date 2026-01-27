@@ -65,7 +65,7 @@ const deployedContracts = {
       deployedOnBlock: 1,
     },
     Voting: {
-      address: "0x8ce361602b935680e8dec218b820ff5056beb7af",
+      address: "0x0c8e79f3534b00d9a3d4a856b665bf4ebc22f2ba",
       abi: [
         {
           type: "constructor",
@@ -637,7 +637,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 2,
+      deployedOnBlock: 47,
     },
   },
   11155111: {

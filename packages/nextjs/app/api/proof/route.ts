@@ -16,8 +16,9 @@ export async function POST(request: Request) {
   const leaves = leafEvents.map((event: any) => {
     return event?.args.value;
   });
-  const leavesReversed = leaves.reverse();
-  calculatedTree.insertMany(leavesReversed as bigint[]);
+
+  // const leavesReversed = leaves.reverse();
+  calculatedTree.insertMany(leaves as bigint[]);
   const calculatedProof = calculatedTree.generateProof(Number(index));
   const sibs = calculatedProof.siblings.map((sib: bigint) => sib.toString());
   const lengthDiff = 16 - sibs.length;

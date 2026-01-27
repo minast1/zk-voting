@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import PollsSkeleton from "../polls-skeleton";
 import PreviousPolls from "../previous-polls";
 import { Vote } from "lucide-react";
@@ -33,7 +33,13 @@ const PollmonitorTab = () => {
   const { isExpired, formatted } = useCountdown(expiresAt || 0n, currentPollId || 0);
   const isCountingDown = expiresAt !== undefined && currentPollId !== undefined;
 
-  // const yesPercentage = //totalVotes > 0 ? (poll.yesVotes / totalVotes) * 100 : 0;
+  const yesPercentage = useMemo(() => {
+    if (poll) {
+      const totalVotes = poll && Number(poll[1] + poll[2]);
+      return totalVotes > 0 ? (Number(poll[1]) / totalVotes) * 100 : 0;
+    }
+    return 0;
+  }, [poll]);
   useEffect(() => {
     if (isExpired && currentPollId !== undefined) {
       setCurrentPollId(undefined);
@@ -95,14 +101,11 @@ const PollmonitorTab = () => {
               </div>
             </div>
             <div className="mt-4 h-2 rounded-full bg-secondary overflow-hidden">
-              {/* <div 
-            className="h-full bg-success transition-all duration-500"
-            style={{ width: `${yesPercentage}%` }}
-          /> */}
+              <div className="h-full bg-success transition-all duration-500" style={{ width: `${yesPercentage}%` }} />
             </div>
-            {/* <p className="text-xs text-muted-foreground text-center mt-2">
-          {yesPercentage.toFixed(1)}% Yes / {(100 - yesPercentage).toFixed(1)}% No
-        </p> */}
+            <p className="text-xs text-muted-foreground text-center mt-2">
+              {yesPercentage.toFixed(1)}% Yes / {(100 - yesPercentage).toFixed(1)}% No
+            </p>
           </CardContent>
         </Card>
       ) : isLoading && isCountingDown ? (
