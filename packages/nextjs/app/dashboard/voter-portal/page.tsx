@@ -56,7 +56,7 @@ const VotingPage: NextPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-screen bg-background border border-blue-500">
       <div className="border-b border-border/50 backdrop-blur-xl">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">

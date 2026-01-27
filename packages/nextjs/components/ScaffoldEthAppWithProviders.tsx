@@ -20,9 +20,11 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <>
-      <div className="min-h-screen bg-background">
+      <div className="bg-background h-screen flex flex-col overflow-hidden">
         <Header voter={false} onLogout={handleLogout} />
-        <main className="container mx-auto px-4 py-8 max-w-7xl">{children}</main>
+        <main className="container mx-auto px-4 py-8 max-w-7xl border border-red-600 flex-1 overflow-y-auto scrollbar-hide">
+          {children}
+        </main>
         <Footer />
       </div>
       <Toaster />
