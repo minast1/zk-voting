@@ -108,6 +108,19 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "closePoll",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
           name: "createPoll",
           inputs: [
             {
@@ -430,6 +443,19 @@ const deployedContracts = {
         },
         {
           type: "event",
+          name: "PollClosed",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              indexed: true,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
           name: "PollCreated",
           inputs: [
             {
@@ -629,6 +655,11 @@ const deployedContracts = {
               internalType: "bytes32",
             },
           ],
+        },
+        {
+          type: "error",
+          name: "Voting__PollNotActive",
+          inputs: [],
         },
         {
           type: "error",
@@ -700,7 +731,7 @@ const deployedContracts = {
       deployedOnBlock: 10018853,
     },
     Voting: {
-      address: "0x6e5136a3f0a47c87458a7fe7f0a5a7e6c62e29ef",
+      address: "0x52ee621266cbef035701dd4005cb8ffe212e74af",
       abi: [
         {
           type: "constructor",
@@ -736,6 +767,19 @@ const deployedContracts = {
               name: "statuses",
               type: "bool[]",
               internalType: "bool[]",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "closePoll",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              internalType: "uint256",
             },
           ],
           outputs: [],
@@ -1065,6 +1109,19 @@ const deployedContracts = {
         },
         {
           type: "event",
+          name: "PollClosed",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              indexed: true,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
           name: "PollCreated",
           inputs: [
             {
@@ -1267,12 +1324,17 @@ const deployedContracts = {
         },
         {
           type: "error",
+          name: "Voting__PollNotActive",
+          inputs: [],
+        },
+        {
+          type: "error",
           name: "Voting__VotingClosed",
           inputs: [],
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 10019180,
+      deployedOnBlock: 10144211,
     },
   },
 } as const;

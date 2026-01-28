@@ -109,7 +109,7 @@ const PendingRequestsTab = () => {
         <div className="space-y-3">
           <h3 className="text-lg font-medium text-muted-foreground">Past Requests</h3>
           {voterManagementList
-            .filter(req => req.status === "approved")
+            .filter(req => req.status === "approved" && req.addedByAdmin === false)
             .map((req, idx) => (
               <Card key={idx} className="glass-card border-border/50 opacity-70">
                 <CardContent className="py-4">
