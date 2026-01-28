@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Check, CheckCircle2, Clock, Fingerprint, Loader2, ShieldCheck, Users, X } from "lucide-react";
 import { useConnectorClient, usePublicClient } from "wagmi";
 //import { getContract, parseEther } from "viem";
@@ -48,9 +48,32 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
 
   const { data: contractInfo } = useDeployedContractInfo({ contractName: "Voting" });
   //console.log(uint8ArrayToHexString(proofData?.proof));
-  const totalVotes = Number(poll[1] + poll[2]);
-  const yesPercentage = totalVotes > 0 ? (Number(poll[1]) / totalVotes) * 100 : 0;
-  const noPercentage = totalVotes > 0 ? (Number(poll[2]) / totalVotes) * 100 : 0;
+  const voteStats = useMemo(() => {
+    if (!poll) {
+      return {
+        yes: 0,
+        no: 0,
+        total: 0,
+        yesPercentage: 0,
+        noPercentage: 0,
+      };
+    }
+
+    const yes = Number(poll[1]);
+    const no = Number(poll[2]);
+    const total = yes + no;
+    const yesPercentage = total > 0 ? (yes / total) * 100 : 0;
+    const noPercentage = 100 - yesPercentage;
+
+    return {
+      yes,
+      no,
+      total,
+      yesPercentage,
+      noPercentage,
+    };
+  }, [poll]);
+
   const { status } = useBlockAwareExpiration();
   const hasRegistered = CommitmentData !== null && typeof CommitmentData.index !== undefined;
   const generateMerkleProof = async () => {
@@ -174,7 +197,7 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
           </span>
           <span className="flex items-center gap-1">
             <Users className="w-4 h-4" />
-            {totalVotes} votes
+            {voteStats.total} votes
           </span>
           <span className="flex items-center gap-1">
             <ShieldCheck className="w-4 h-4 text-primary" />
@@ -274,10 +297,10 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
                       Yes
                     </span>
                     <span className="font-mono">
-                      {poll[1]} ({yesPercentage.toFixed(1)}%)
+                      {voteStats.yes} ({voteStats.yesPercentage.toFixed(1)}%)
                     </span>
                   </div>
-                  <Progress value={yesPercentage} className="h-2 bg-secondary" />
+                  <Progress value={voteStats.yesPercentage} className="h-2 bg-secondary" />
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
@@ -286,10 +309,10 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
                       No
                     </span>
                     <span className="font-mono">
-                      {poll[2]} ({noPercentage.toFixed(1)}%)
+                      {voteStats.no} ({voteStats.noPercentage.toFixed(1)}%)
                     </span>
                   </div>
-                  <Progress value={noPercentage} className="h-2 bg-secondary" />
+                  <Progress value={voteStats.noPercentage} className="h-2 bg-secondary" />
                 </div>
               </div>
             )}

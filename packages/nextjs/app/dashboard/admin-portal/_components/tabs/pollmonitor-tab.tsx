@@ -32,13 +32,32 @@ const PollmonitorTab = () => {
   const { isExpired, formatted } = useCountdown(expiresAt || 0n, currentPollId || 0);
   const isCountingDown = expiresAt !== undefined && currentPollId !== undefined;
 
-  const yesPercentage = useMemo(() => {
-    if (poll) {
-      const totalVotes = poll && Number(poll[1] + poll[2]);
-      return totalVotes > 0 ? (Number(poll[1]) / totalVotes) * 100 : 0;
+  const voteStats = useMemo(() => {
+    if (!poll) {
+      return {
+        yes: 0,
+        no: 0,
+        total: 0,
+        yesPercentage: 0,
+        noPercentage: 0,
+      };
     }
-    return 0;
+
+    const yes = Number(poll[1]);
+    const no = Number(poll[2]);
+    const total = yes + no;
+    const yesPercentage = total > 0 ? (yes / total) * 100 : 0;
+    const noPercentage = 100 - yesPercentage;
+
+    return {
+      yes,
+      no,
+      total,
+      yesPercentage,
+      noPercentage,
+    };
   }, [poll]);
+
   useEffect(() => {
     if (isExpired && currentPollId !== undefined) {
       setCurrentPollId(undefined);
@@ -87,10 +106,13 @@ const PollmonitorTab = () => {
               </div>
             </div>
             <div className="mt-4 h-2 rounded-full bg-secondary overflow-hidden">
-              <div className="h-full bg-success transition-all duration-500" style={{ width: `${yesPercentage}%` }} />
+              <div
+                className="h-full bg-success transition-all duration-500"
+                style={{ width: `${voteStats.yesPercentage}%` }}
+              />
             </div>
             <p className="text-xs text-muted-foreground text-center mt-2">
-              {yesPercentage.toFixed(1)}% Yes / {(100 - yesPercentage).toFixed(1)}% No
+              {voteStats.yesPercentage.toFixed(1)}% Yes / {voteStats.noPercentage.toFixed(1)}% No
             </p>
           </CardContent>
         </Card>
