@@ -2,6 +2,7 @@ import React from "react";
 import { Badge } from "~~/components/ui/badge";
 import { Card, CardContent } from "~~/components/ui/card";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+import { timeAgo } from "~~/lib/time-converter";
 
 const PollRow = ({ id }: { id: number }) => {
   const { data: pollData } = useScaffoldReadContract({
@@ -14,13 +15,16 @@ const PollRow = ({ id }: { id: number }) => {
     <>
       {pollData && (
         <Card className="glass-card border-border/50 opacity-70" key={id}>
-          <CardContent className="py-4">
+          <CardContent className="py-1">
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">{pollData[0]}</p>
                 <p className="text-xs text-muted-foreground">{pollData[1] + pollData[2]} total votes</p>
               </div>
-              <Badge variant="default">Closed</Badge>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground"> {timeAgo(pollData[4])}</span>
+                <Badge variant="default">Closed</Badge>
+              </div>
             </div>
           </CardContent>
         </Card>
