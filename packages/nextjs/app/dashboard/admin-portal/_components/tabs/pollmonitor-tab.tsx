@@ -4,7 +4,6 @@ import PreviousPolls from "../previous-polls";
 import { Vote } from "lucide-react";
 import { CreatePollDialog } from "~~/components/dialogs/create-poll";
 import { Badge } from "~~/components/ui/badge";
-import { Button } from "~~/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~~/components/ui/card";
 import { TabsContent } from "~~/components/ui/tabs";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
@@ -48,18 +47,11 @@ const PollmonitorTab = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isExpired, hasHydrated]);
-  //console.log(formatted);
-  const handleClose = () => {
-    // closePoll(poll.id);
-    // onClose();
-    // toast.success('Poll closed successfully');
-  };
 
   return (
     <TabsContent value="polls" className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Poll Management</h2>
-        {/* {!isExpired && <CreatePollDialog />} */}
       </div>
 
       {isCountingDown ? (
@@ -77,12 +69,6 @@ const PollmonitorTab = () => {
                   </div>
                 )}
               </CardDescription>
-
-              {isExpired && (
-                <Button variant="destructive" size="sm" onClick={handleClose}>
-                  Close Poll
-                </Button>
-              )}
             </div>
           </CardHeader>
           <CardContent>

@@ -7,7 +7,7 @@ import { useConnectorClient, usePublicClient } from "wagmi";
 import { Button } from "~~/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "~~/components/ui/card";
 import { Progress } from "~~/components/ui/progress";
-import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
+import { TxnNotification, useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { useBlockAwareExpiration } from "~~/hooks/useBlockAwareExpiration";
 import { invokeLocalBurner } from "~~/lib/local-burner";
@@ -16,7 +16,7 @@ import { timeAgo } from "~~/lib/time-converter";
 //import uint8ArrayToHexString from "~~/lib/uint-to-hex";
 import { cn } from "~~/lib/utils";
 import { useChallengeStore } from "~~/services/store/zk-store";
-import { notification } from "~~/utils/scaffold-eth";
+import { getBlockExplorerTxLink, notification } from "~~/utils/scaffold-eth";
 
 interface PollCardProps {
   poll: any;
@@ -36,6 +36,7 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
   const { data: mainWalletClient } = useConnectorClient({
     chainId: targetNetwork.id,
   });
+
   const CommitmentData = useChallengeStore(state => state.commitmentData);
   const setProofGenerated = useChallengeStore(state => state.setProofGenerated);
   const setProofData = useChallengeStore(state => state.setProofData);
@@ -51,7 +52,7 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
   const yesPercentage = totalVotes > 0 ? (Number(poll[1]) / totalVotes) * 100 : 0;
   const noPercentage = totalVotes > 0 ? (Number(poll[2]) / totalVotes) * 100 : 0;
   const { status } = useBlockAwareExpiration();
-
+  const hasRegistered = CommitmentData !== null && typeof CommitmentData.index !== undefined;
   const generateMerkleProof = async () => {
     if (!CommitmentData) return;
     setIsGenerating(true);
@@ -104,11 +105,19 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
 
         if (txReceipt.status === "success") {
           //add txn link to verify
-          notification.success("Vote submitted successfully");
+          const blockExplorerTxURL = getBlockExplorerTxLink(mainWalletClient.chain.id, txReceipt.transactionHash) || "";
+          notification.success(
+            <TxnNotification message="Transaction completed successfully!" blockExplorerLink={blockExplorerTxURL} />,
+            {
+              icon: "🎉",
+              duration: 10000,
+            },
+          );
           setHasVoted(true);
           setIsSubmitting(false);
         }
       } else {
+        //txReciept?.transactionHash
         const txReciept = await invokeSepoliaBurner({
           proofData,
           pollId: _pollId,
@@ -116,7 +125,14 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
         });
 
         if (txReciept?.status === "success") {
-          notification.success("Vote submitted successfully");
+          const blockExplorerTxURL = getBlockExplorerTxLink(mainWalletClient.chain.id, txReciept.transactionHash) || "";
+          notification.success(
+            <TxnNotification message="Transaction completed successfully!" blockExplorerLink={blockExplorerTxURL} />,
+            {
+              icon: "🎉",
+              duration: 10000,
+            },
+          );
           setHasVoted(true);
           setIsSubmitting(false);
         }
@@ -170,14 +186,9 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
       <CardContent className="space-y-4">
         <>
           <div className="p-4 rounded-lg bg-secondary/30 border border-border/50 space-y-3">
-            {/* <div className="flex items-center gap-2 text-sm font-medium">
-              <Fingerprint className="w-4 h-4 text-primary" />
-              <span>Merkle Proof Required</span>
-            </div> */}
-            <p className="text-xs text-muted-foreground text-center">Choose Your Vote</p>
-
-            {!hasVoted && status === "active" && typeof CommitmentData?.index !== undefined ? (
+            {!hasVoted && status === "active" && hasRegistered ? (
               <>
+                <p className="text-xs text-muted-foreground text-center">Choose Your Vote</p>
                 <div className="grid grid-cols-2 gap-3">
                   <Button
                     variant={selectedVote === "yes" ? "voteActive" : "vote"}
@@ -215,7 +226,7 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
                         <span>Merkle Proof Required</span>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        Generate a Merkle proof to verify your eligibility without revealing your identity.
+                        Generate a Zero Knowledge proof to verify your eligibility without revealing your identity.
                       </p>
                       {proofData?.proof && (
                         <div className="p-2 rounded bg-background/50 font-mono text-xs text-muted-foreground break-all">
@@ -226,7 +237,7 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
                         variant="outline"
                         className="w-full gap-2"
                         onClick={generateMerkleProof}
-                        disabled={isGeneratingProof}
+                        disabled={isGeneratingProof || !!proofData}
                       >
                         {isGeneratingProof ? (
                           <>
@@ -236,7 +247,7 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
                         ) : (
                           <>
                             <Fingerprint className="w-4 h-4" />
-                            Generate Merkle Proof
+                            Generate ZK Proof
                           </>
                         )}
                       </Button>

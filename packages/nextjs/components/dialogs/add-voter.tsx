@@ -95,7 +95,7 @@ export function AddVoterDialog() {
         </DialogHeader>
         <form className="space-y-4 pt-4" onSubmit={form.handleSubmit(handleBulkAdd)}>
           <div className="space-y-2">
-            <Label>EOA Addresses</Label>
+            <Label>EOA / ENS Addresses</Label>
             <div className="rounded-lg border bg-secondary/30 p-2">
               <div className="max-h-40 overflow-y-auto space-y-3">
                 {fields.map((field, index) => (
@@ -146,7 +146,7 @@ export function AddVoterDialog() {
             >
               {form.formState.errors.list
                 ? form.formState.errors.list?.[fields.length - 1]?.address?.message
-                : "Enter Ethereum addresses (EOAs) and press Enter or click + to add."}
+                : "Enter Ethereum addresses (EOAs) or ENS addresses and press Enter or click + to add."}
             </p>
           </div>
 

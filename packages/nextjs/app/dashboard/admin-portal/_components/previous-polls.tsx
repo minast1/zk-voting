@@ -30,12 +30,12 @@ const PreviousPolls = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pollCreatedEvents]);
 
-  return (
+  return pollIds.length > 0 ? (
     <div className="space-y-4">
-      <h3 className="text-lg font-medium text-muted-foreground">Past Polls</h3>
+      <h3 className="text-lg font-medium text-muted-foreground">Previous Polls</h3>
       {pollIds.length ? pollIds.map(id => <PollRow id={Number(id)} key={Number(id)} />) : null}
     </div>
-  );
+  ) : null;
 };
 
 export default PreviousPolls;

@@ -32,7 +32,7 @@ const VotingPage: NextPage = () => {
     functionName: "getPoll",
     args: [currentPollid],
   });
-
+  const hasRegistered = commitmentData !== null && typeof commitmentData.index !== undefined;
   const handleSubmitRequest = async () => {
     setIsSubmitting(true);
     try {
@@ -56,7 +56,7 @@ const VotingPage: NextPage = () => {
   };
 
   return (
-    <div className="h-screen bg-background border border-blue-500">
+    <div className="h-screen bg-background">
       <div className="border-b border-border/50 backdrop-blur-xl">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -101,12 +101,16 @@ const VotingPage: NextPage = () => {
             <div>
               <h2 className="text-xl font-semibold">Active Poll</h2>
               <p className="text-sm text-muted-foreground">
-                {isOnAllowlist ? "Register and cast your anonymous vote" : "Get on the allowlist to participate"}
+                {isOnAllowlist && hasRegistered
+                  ? "Cast Your annonymous vote; Your identity is completely hidden"
+                  : isOnAllowlist
+                    ? "Register and cast your anonymous vote"
+                    : "Get on the allowlist to participate"}
               </p>
             </div>
           </div>
 
-          {status === "active" && isOnAllowlist && typeof commitmentData?.index !== undefined ? (
+          {status === "active" && isOnAllowlist && hasRegistered ? (
             <PollCard
               poll={activePoll || []}
               leafEvents={voterRegisteredLogs || []}
