@@ -24,6 +24,7 @@ contract Voting is Ownable {
     error Voting__AlreadyRegistered();
     error Voting__VotingClosed();
     error Voting__AlreadyRequested();
+    error Voting__PollNotActive();
 
     struct Poll {
         string question;
@@ -96,6 +97,7 @@ contract Voting is Ownable {
         uint256 totalYes,
         uint256 totalNo
     );
+    event PollClosed(uint256 indexed pollId);
     //////////////////
     ////Constructor///
     //////////////////
@@ -240,6 +242,15 @@ contract Voting is Ownable {
             poll.yesVotes,
             poll.noVotes
         );
+    }
+
+    function closePoll(uint256 pollId) public {
+        Poll storage poll = s_polls[pollId];
+        if (!poll.exists) {
+            revert Voting__InvalidPoll();
+        }
+        poll.exists = false;
+        emit PollClosed(pollId);
     }
 
     /////////////////////////

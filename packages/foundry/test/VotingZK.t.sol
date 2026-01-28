@@ -19,20 +19,19 @@ contract VotingZKTest is Test {
 
         voting = new Voting(address(this), address(verifier));
 
-        // allowlist voter1
-        address[] memory voters = new address[](1);
-        bool[] memory statuses = new bool[](1);
-        voters[0] = voter1;
-        statuses[0] = true;
-        voting.addVoters(voters, statuses);
-
         //Create Poll
-
         pollId = voting.createPoll(
             "Should we test this poll..?",
             block.timestamp - 1,
             block.timestamp + 1 days
         );
+
+        // allowlist voter1
+        address[] memory voters = new address[](1);
+        bool[] memory statuses = new bool[](1);
+        voters[0] = voter1;
+        statuses[0] = true;
+        voting.addVoters(voters, pollId, statuses);
     }
 
     function _getZkProofAndNullifierHash(
