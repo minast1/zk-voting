@@ -35,21 +35,21 @@ const useVoterManagementLIst = (pollId: bigint | undefined) => {
       const [requestLogs, approvalLogs, voterRegisteredLogs] = await Promise.all([
         publicClient!.getLogs({
           address: contractData!.address,
-          fromBlock: BigInt(process.env.NEXT_PUBLIC_DEPLOYMENT_BLOCK || 0n), //use deployment block as fromBlock
+          fromBlock: BigInt(process.env.NEXT_PUBLIC_DEPLOYMENT_BLOCK || 0), //use deployment block as fromBlock
           event: ACCESS_REQUESTED_ABI,
           args: { pollId },
         }),
 
         publicClient!.getLogs({
           address: contractData!.address,
-          fromBlock: BigInt(process.env.NEXT_PUBLIC_DEPLOYMENT_BLOCK || 0n),
+          fromBlock: BigInt(process.env.NEXT_PUBLIC_DEPLOYMENT_BLOCK || 0),
           event: VOTER_ADDED_ABI,
           args: { poll_id: pollId },
         }),
 
         publicClient!.getLogs({
           address: contractData!.address,
-          fromBlock: BigInt(process.env.NEXT_PUBLIC_DEPLOYMENT_BLOCK || 0n),
+          fromBlock: BigInt(process.env.NEXT_PUBLIC_DEPLOYMENT_BLOCK || 0),
           event: VOTER_REGISTERED_ABI,
           args: { pollId },
         }),
@@ -57,7 +57,7 @@ const useVoterManagementLIst = (pollId: bigint | undefined) => {
 
       return { requestLogs, approvalLogs, voterRegisteredLogs };
     },
-    refetchInterval: 5000, //5seconds
+    refetchInterval: 30000, //5seconds
   });
 
   const voterManagementList = React.useMemo(() => {

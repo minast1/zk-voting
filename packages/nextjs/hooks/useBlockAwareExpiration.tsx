@@ -25,6 +25,7 @@ export function useBlockAwareExpiration() {
   useWatchBlockNumber({
     emitOnBegin: true,
     enabled: currentPollData !== undefined,
+    pollingInterval: 12000,
     poll: true,
     onBlockNumber: async blockNumber => {
       // 1. Guard: Only check if there is an active poll to watch

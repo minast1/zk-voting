@@ -32,6 +32,8 @@ const VotingPage: NextPage = () => {
     functionName: "getPoll",
     args: [currentPollid],
   });
+
+  // console.log({ voterRegisteredLogs });
   const hasRegistered = commitmentData !== null && typeof commitmentData.index !== undefined;
   const handleSubmitRequest = async () => {
     setIsSubmitting(true);

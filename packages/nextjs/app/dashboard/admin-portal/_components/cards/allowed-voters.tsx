@@ -1,25 +1,14 @@
 import React from "react";
-import { useScaffoldEventHistory } from "../../../../../hooks/scaffold-eth/useScaffoldEventHistory";
 import StatsSkeleton from "../stats-skeleton";
 import { Users } from "lucide-react";
 import { Card, CardContent } from "~~/components/ui/card";
+import useVoterManagementLIst from "~~/hooks/useVoterManagementLIst";
 import { useChallengeStore } from "~~/services/store/zk-store";
 
 const AllowedVoters = () => {
   const activePollId = useChallengeStore(state => state.currentPollid);
-  const { data: voterAddedEvents, isLoading } = useScaffoldEventHistory({
-    contractName: "Voting",
-    eventName: "VoterAdded",
-    fromBlock: BigInt(process.env.NEXT_PUBLIC_DEPLOYMENT_BLOCK || 0n),
-    watch: true,
-  });
-
-  const totalAllowdVoters =
-    activePollId == null
-      ? 0
-      : voterAddedEvents.reduce((count, event) => {
-          return Number(event.args.poll_id) === activePollId ? count + 1 : count;
-        }, 0);
+  const { voterManagementList, isLoading } = useVoterManagementLIst(activePollId ? BigInt(activePollId) : undefined);
+  const totalAllowedVoters = voterManagementList.filter(v => v.status === "approved").length;
   return isLoading ? (
     <StatsSkeleton />
   ) : (
@@ -28,7 +17,7 @@ const AllowedVoters = () => {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-muted-foreground">Allowed Voters</p>
-            <p className="text-3xl font-bold text-success">{totalAllowdVoters}</p>
+            <p className="text-3xl font-bold text-success">{totalAllowedVoters}</p>
           </div>
           <Users className="w-8 h-8 text-success" />
         </div>
