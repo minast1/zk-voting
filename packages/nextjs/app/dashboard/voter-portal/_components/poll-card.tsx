@@ -75,7 +75,13 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
   }, [poll]);
 
   const { status } = useBlockAwareExpiration();
-  const hasRegistered = CommitmentData !== null && typeof CommitmentData.index !== undefined;
+
+  const hasRegistered = useMemo(() => {
+    if (!CommitmentData) return false;
+    return "index" in CommitmentData;
+  }, [CommitmentData]);
+
+  //CommitmentData !== null && typeof CommitmentData.index !== undefined;
   const generateMerkleProof = async () => {
     if (!CommitmentData) return;
     setIsGenerating(true);
@@ -104,8 +110,6 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
       return res;
     } catch (error) {
       notification.error(error instanceof Error ? error.message : String(error));
-    } finally {
-      setIsGenerating(false);
     }
   };
 

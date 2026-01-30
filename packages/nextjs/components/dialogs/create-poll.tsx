@@ -39,7 +39,7 @@ export function CreatePollDialog() {
   const [question, setQuestion] = useState("");
   const [duration, setDuration] = useState("24");
   const [error, setError] = useState("");
-  const [, setLoading] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const setCurrentPollId = useChallengeStore(state => state.setCurrentPollId);
   const setExpiresAt = useChallengeStore(state => state.setExpiresAt);
   const setCurrentPollQuestion = useChallengeStore(state => state.setCurrentPollQuestion);
@@ -75,7 +75,7 @@ export function CreatePollDialog() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [publicClient, votingContractInfo]);
 
-  const { writeContractAsync, isPending } = useScaffoldWriteContract({
+  const { writeContractAsync, isPending, isMining } = useScaffoldWriteContract({
     contractName: "Voting",
   });
   const handleCreate = async () => {
@@ -92,7 +92,7 @@ export function CreatePollDialog() {
 
     setLoading(true);
     try {
-      writeContractAsync(
+      await writeContractAsync(
         { functionName: "createPoll", args: [question.trim(), BigInt(startTime), BigInt(endTime)] },
         {
           onBlockConfirmation: () => {
@@ -107,8 +107,6 @@ export function CreatePollDialog() {
       );
     } catch (error) {
       notification.error(error instanceof Error ? error.message : String(error));
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -167,7 +165,7 @@ export function CreatePollDialog() {
               Cancel
             </Button>
             <Button className="flex-1 hover:cursor-pointer" onClick={handleCreate} disabled={question.length < 10}>
-              {isPending ? (
+              {isPending || isLoading || isMining ? (
                 <>
                   <Spinner className="mr-2" /> Creating...
                 </>

@@ -22,7 +22,7 @@ export function AddVoterDialog() {
   const [allowStatus] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const pollId = useChallengeStore(state => state.currentPollid);
-  const { writeContractAsync, isPending } = useScaffoldWriteContract({
+  const { writeContractAsync, isPending, isMining } = useScaffoldWriteContract({
     contractName: "Voting",
   });
   const Aschema = allowListSchema(allowStatus);
@@ -39,29 +39,26 @@ export function AddVoterDialog() {
     name: "list",
   });
 
-  const handleBulkAdd = (data: AllowListSchema) => {
+  const handleBulkAdd = async (data: AllowListSchema) => {
     // console.log(data);
     setIsLoading(true);
     try {
-      writeContractAsync(
+      await writeContractAsync(
         {
           functionName: "addVoters",
           args: [data.list.map(item => item.address), BigInt(pollId || 0n), data.list.map(item => item.status)],
         },
         {
-          blockConfirmations: 1,
           onBlockConfirmation: () => {
             form.reset();
             setIsLoading(false);
+            setOpen(false);
           },
         },
       );
     } catch (error) {
       console.log(error);
       setIsLoading(false);
-    } finally {
-      setIsLoading(false);
-      setOpen(false);
     }
   };
 
@@ -169,7 +166,7 @@ export function AddVoterDialog() {
             //onClick={handleSubmit}
             className="w-full"
           >
-            {isPending || isLoading ? (
+            {isPending || isLoading || isMining ? (
               <>
                 <Spinner /> <span className="ml-2">Adding...Please Wait</span>
               </>

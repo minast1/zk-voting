@@ -11,7 +11,11 @@ const useGetPollCreatedEvents = (activePollId: bigint | undefined) => {
     contractName: "Voting",
   });
 
-  const { data: pollCreatedEvents, refetch } = useQuery({
+  const {
+    data: pollCreatedEvents,
+    refetch,
+    isLoading,
+  } = useQuery({
     // Standard 2026 Query Key pattern
     queryKey: ["pollCreatedEvents", publicClient?.chain.id],
     queryFn: async () => {
@@ -22,7 +26,7 @@ const useGetPollCreatedEvents = (activePollId: bigint | undefined) => {
         event: parseAbiItem(
           "event PollCreated(uint256 indexed pollId,string question,uint256 startTime,uint256 endTime)",
         ),
-        args: { pollId: activePollId },
+        // args: { pollId: activePollId },
         fromBlock: deploymentBlock,
         toBlock: "latest",
       });
@@ -35,10 +39,14 @@ const useGetPollCreatedEvents = (activePollId: bigint | undefined) => {
 
   const pollIds = React.useMemo(() => {
     if (!pollCreatedEvents) return [];
-    return pollCreatedEvents.map(e => e.args.pollId).slice(0, 3);
-  }, [pollCreatedEvents]);
+    return pollCreatedEvents
+      .filter(e => e.args.pollId !== activePollId)
+      .sort((a, b) => Number(b.args.pollId! - a.args.pollId!))
+      .map(e => e.args.pollId)
+      .slice(0, 3);
+  }, [pollCreatedEvents, activePollId]);
 
-  return { pollIds, refetch };
+  return { pollIds, refetch, isLoading };
 };
 
 export default useGetPollCreatedEvents;

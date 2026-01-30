@@ -33,7 +33,7 @@ export const VoterRegistration = ({ _pollId }: VoterRegistrationProps) => {
   const commitmentData = useChallengeStore(state => state.commitmentData);
   const { data: votingContract } = useDeployedContractInfo({ contractName: "Voting" });
   const updateCommitmentIndex = useChallengeStore(state => state.updateCommitmentIndex);
-  const { writeContractAsync, isPending } = useScaffoldWriteContract({
+  const { writeContractAsync, isPending, isMining } = useScaffoldWriteContract({
     contractName: "Voting",
   });
 
@@ -49,8 +49,6 @@ export const VoterRegistration = ({ _pollId }: VoterRegistrationProps) => {
       console.log("Error generating commitment:", error);
       setIsGenerating(false);
       throw error;
-    } finally {
-      setIsGenerating(false);
     }
   };
 
@@ -63,31 +61,31 @@ export const VoterRegistration = ({ _pollId }: VoterRegistrationProps) => {
     const { commitment } = commitmentData;
     setIsRegistering(true);
     try {
-      const hash = await writeContractAsync(
+      await writeContractAsync(
         {
           functionName: "register",
 
           args: [BigInt(commitment), BigInt(_pollId)],
         },
-        // {
-        //   blockConfirmations: 1,
-        // },
+        {
+          onBlockConfirmation: async txReceipt => {
+            const receipt = await publicClient.waitForTransactionReceipt({ hash: txReceipt.transactionHash });
+            const logs = receipt.logs[0];
+            const decodedLog = decodeEventLog({
+              abi: parseAbi(["event CommitmentRegistered(uint256 indexed pollId,uint256 indexed index,uint256 value)"]),
+              data: logs.data,
+              topics: logs.topics,
+            });
+            updateCommitmentIndex(Number(decodedLog.args.index));
+            setIsRegistering(false);
+          },
+        },
       );
-      if (hash) {
-        const receipt = await publicClient.waitForTransactionReceipt({ hash });
-        const logs = receipt.logs[0];
-        const decodedLog = decodeEventLog({
-          abi: parseAbi(["event CommitmentRegistered(uint256 indexed pollId,uint256 indexed index,uint256 value)"]),
-          data: logs.data,
-          topics: logs.topics,
-        });
-        updateCommitmentIndex(Number(decodedLog.args.index));
-        setIsRegistering(false);
-      }
+      // if (hash) {
+
+      // }
     } catch (error) {
       notification.error(error instanceof Error ? error.message : String(error));
-      setIsRegistering(false);
-    } finally {
       setIsRegistering(false);
     }
   };
@@ -123,7 +121,7 @@ export const VoterRegistration = ({ _pollId }: VoterRegistrationProps) => {
               <Spinner />
               <span className="ml-2">Generating Commitment...</span>
             </>
-          ) : isPending || isRegistering ? (
+          ) : isPending || isRegistering || isMining ? (
             <>
               <Spinner />
               <span className="ml-2">Registering Voter...</span>
