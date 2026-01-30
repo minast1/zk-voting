@@ -22,7 +22,7 @@ export function AddVoterDialog() {
   const [allowStatus] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const pollId = useChallengeStore(state => state.currentPollid);
-  const { writeContractAsync } = useScaffoldWriteContract({
+  const { writeContractAsync, isPending } = useScaffoldWriteContract({
     contractName: "Voting",
   });
   const Aschema = allowListSchema(allowStatus);
@@ -169,7 +169,7 @@ export function AddVoterDialog() {
             //onClick={handleSubmit}
             className="w-full"
           >
-            {isLoading ? (
+            {isPending || isLoading ? (
               <>
                 <Spinner /> <span className="ml-2">Adding...Please Wait</span>
               </>

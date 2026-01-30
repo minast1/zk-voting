@@ -33,7 +33,7 @@ export const VoterRegistration = ({ _pollId }: VoterRegistrationProps) => {
   const commitmentData = useChallengeStore(state => state.commitmentData);
   const { data: votingContract } = useDeployedContractInfo({ contractName: "Voting" });
   const updateCommitmentIndex = useChallengeStore(state => state.updateCommitmentIndex);
-  const { writeContractAsync } = useScaffoldWriteContract({
+  const { writeContractAsync, isPending } = useScaffoldWriteContract({
     contractName: "Voting",
   });
 
@@ -69,9 +69,9 @@ export const VoterRegistration = ({ _pollId }: VoterRegistrationProps) => {
 
           args: [BigInt(commitment), BigInt(_pollId)],
         },
-        {
-          blockConfirmations: 1,
-        },
+        // {
+        //   blockConfirmations: 1,
+        // },
       );
       if (hash) {
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
@@ -82,6 +82,7 @@ export const VoterRegistration = ({ _pollId }: VoterRegistrationProps) => {
           topics: logs.topics,
         });
         updateCommitmentIndex(Number(decodedLog.args.index));
+        setIsRegistering(false);
       }
     } catch (error) {
       notification.error(error instanceof Error ? error.message : String(error));
@@ -122,7 +123,7 @@ export const VoterRegistration = ({ _pollId }: VoterRegistrationProps) => {
               <Spinner />
               <span className="ml-2">Generating Commitment...</span>
             </>
-          ) : isRegistering ? (
+          ) : isPending || isRegistering ? (
             <>
               <Spinner />
               <span className="ml-2">Registering Voter...</span>

@@ -149,6 +149,7 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
 
         if (txReciept?.status === "success") {
           const blockExplorerTxURL = getBlockExplorerTxLink(mainWalletClient.chain.id, txReciept.transactionHash) || "";
+          //console.log({ blockExplorerTxURL, txReciept });
           notification.success(
             <TxnNotification message="Transaction completed successfully!" blockExplorerLink={blockExplorerTxURL} />,
             {
@@ -241,7 +242,7 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
                   </Button>
                 </div>
                 {/* ZK Proof Section */}
-                {selectedVote && (
+                {selectedVote && hasRegistered && (
                   <>
                     <div className="p-4 rounded-lg bg-secondary/30 border border-border/50 space-y-3">
                       <div className="flex items-center gap-2 text-sm font-medium">

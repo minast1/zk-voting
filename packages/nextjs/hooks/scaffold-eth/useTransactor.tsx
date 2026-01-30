@@ -20,8 +20,13 @@ export const TxnNotification = ({ message, blockExplorerLink }: { message: strin
     <div className={`flex flex-col ml-1 cursor-default`}>
       <p className="my-0">{message}</p>
       {blockExplorerLink && blockExplorerLink.length > 0 ? (
-        <a href={blockExplorerLink} target="_blank" rel="noreferrer" className="block link">
-          check out transaction
+        <a
+          href={blockExplorerLink}
+          target="_blank"
+          rel="noreferrer"
+          className="block underline text-primary hover:cursor-pointer"
+        >
+          check out transaction on etherscan
         </a>
       ) : null}
     </div>
