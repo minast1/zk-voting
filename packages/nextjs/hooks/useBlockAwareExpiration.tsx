@@ -29,7 +29,11 @@ export function useBlockAwareExpiration() {
     poll: true,
     onBlockNumber: async blockNumber => {
       // 1. Guard: Only check if there is an active poll to watch
-      if (!currentPollData || !currentPollid || !publicClient) return;
+      if (!currentPollData || !currentPollid || !publicClient) {
+        resetStore();
+        setStatus(undefined);
+        return;
+      }
 
       try {
         const expiresAt = currentPollData[4];

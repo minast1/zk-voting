@@ -83,7 +83,10 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
 
   //CommitmentData !== null && typeof CommitmentData.index !== undefined;
   const generateMerkleProof = async () => {
-    if (!CommitmentData) return;
+    if (!CommitmentData || !hasRegistered) {
+      notification.error("User registration not complete please try again");
+      return;
+    }
     setIsGenerating(true);
     try {
       const proofData = await fetch("/api/proof", {
@@ -103,13 +106,20 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
           selectedVote,
         }),
       });
-      const res = await proofData.json();
-      setProofGenerated(true);
-      setProofData({ proof: res.proof, publicInputs: res.publicInputs });
-      setIsGenerating(false);
-      return res;
+
+      if (proofData.ok) {
+        const res = await proofData.json();
+
+        setProofGenerated(true);
+        setProofData({ proof: res.proof, publicInputs: res.publicInputs });
+        setIsGenerating(false);
+        return res;
+      } else {
+        throw new Error("Proof generation failed");
+      }
     } catch (error) {
       notification.error(error instanceof Error ? error.message : String(error));
+      setIsGenerating(false);
     }
   };
 

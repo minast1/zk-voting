@@ -671,6 +671,672 @@ const deployedContracts = {
       deployedOnBlock: 2,
     },
   },
+  84532: {
+    PoseidonT3: {
+      address: "0xf3932039eb620c8d5f3acb5d26b07dba9243e296",
+      abi: [
+        {
+          type: "function",
+          name: "hash",
+          inputs: [
+            {
+              name: "",
+              type: "uint256[2]",
+              internalType: "uint256[2]",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "pure",
+        },
+      ],
+      inheritedFunctions: {},
+      deployedOnBlock: 37028795,
+    },
+    LeanIMT: {
+      address: "0x00a1895eddeec621e7a0eb02e8d63649f584ad61",
+      abi: [
+        {
+          type: "error",
+          name: "LeafAlreadyExists",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "LeafCannotBeZero",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "LeafDoesNotExist",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "LeafGreaterThanSnarkScalarField",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "WrongSiblingNodes",
+          inputs: [],
+        },
+      ],
+      inheritedFunctions: {},
+      deployedOnBlock: 37028795,
+    },
+    Voting: {
+      address: "0x55df81d2bdfdf5c558a3c0f02167db2dda5d3fe7",
+      abi: [
+        {
+          type: "constructor",
+          inputs: [
+            {
+              name: "_owner",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "_verifier",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "addVoters",
+          inputs: [
+            {
+              name: "voters",
+              type: "address[]",
+              internalType: "address[]",
+            },
+            {
+              name: "pollId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "statuses",
+              type: "bool[]",
+              internalType: "bool[]",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "closePoll",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "createPoll",
+          inputs: [
+            {
+              name: "question",
+              type: "string",
+              internalType: "string",
+            },
+            {
+              name: "startTime",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "endTime",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "getPoll",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "question",
+              type: "string",
+              internalType: "string",
+            },
+            {
+              name: "yesVotes",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "noVotes",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "startTime",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "endTime",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "size",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "depth",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "root",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "getPollCount",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "getVoterData",
+          inputs: [
+            {
+              name: "_voter",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "pollId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "voter",
+              type: "bool",
+              internalType: "bool",
+            },
+            {
+              name: "registered",
+              type: "bool",
+              internalType: "bool",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "owner",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "register",
+          inputs: [
+            {
+              name: "_commitment",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "pollId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "renounceOwnership",
+          inputs: [],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "requestAccess",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "requestAllowList",
+          inputs: [],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "transferOwnership",
+          inputs: [
+            {
+              name: "newOwner",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "vote",
+          inputs: [
+            {
+              name: "_pollId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "_proof",
+              type: "bytes",
+              internalType: "bytes",
+            },
+            {
+              name: "_nullifierHash",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+            {
+              name: "_root",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+            {
+              name: "_vote",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+            {
+              name: "_depth",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "event",
+          name: "AccessRequested",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              indexed: true,
+              internalType: "uint256",
+            },
+            {
+              name: "requester",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "timestamp",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
+          name: "AllowListRequest",
+          inputs: [
+            {
+              name: "requester",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "timestamp",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
+          name: "CommitmentRegistered",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              indexed: true,
+              internalType: "uint256",
+            },
+            {
+              name: "index",
+              type: "uint256",
+              indexed: true,
+              internalType: "uint256",
+            },
+            {
+              name: "value",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
+          name: "OwnershipTransferred",
+          inputs: [
+            {
+              name: "previousOwner",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "newOwner",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
+          name: "PollClosed",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              indexed: true,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
+          name: "PollCreated",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              indexed: true,
+              internalType: "uint256",
+            },
+            {
+              name: "question",
+              type: "string",
+              indexed: false,
+              internalType: "string",
+            },
+            {
+              name: "startTime",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+            {
+              name: "endTime",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
+          name: "RequestUpdated",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              indexed: true,
+              internalType: "uint256",
+            },
+            {
+              name: "requester",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "status",
+              type: "uint8",
+              indexed: false,
+              internalType: "enum Voting.RequestStatus",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
+          name: "VoteCast",
+          inputs: [
+            {
+              name: "pollId",
+              type: "uint256",
+              indexed: true,
+              internalType: "uint256",
+            },
+            {
+              name: "nullifierHash",
+              type: "bytes32",
+              indexed: true,
+              internalType: "bytes32",
+            },
+            {
+              name: "vote",
+              type: "bool",
+              indexed: false,
+              internalType: "bool",
+            },
+            {
+              name: "timestamp",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+            {
+              name: "totalYes",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+            {
+              name: "totalNo",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
+          name: "VoterAdded",
+          inputs: [
+            {
+              name: "voter",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "poll_id",
+              type: "uint256",
+              indexed: true,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "error",
+          name: "OwnableInvalidOwner",
+          inputs: [
+            {
+              name: "owner",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "OwnableUnauthorizedAccount",
+          inputs: [
+            {
+              name: "account",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "Voting__AlreadyRegistered",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "Voting__AlreadyRequested",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "Voting__CommitmentAlreadyAdded",
+          inputs: [
+            {
+              name: "commitment",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "Voting__EmptyTree",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "Voting__InvalidPoll",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "Voting__InvalidProof",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "Voting__InvalidRoot",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "Voting__InvalidTimeWindow",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "Voting__NotAllowedToVote",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "Voting__NullifierHashAlreadyUsed",
+          inputs: [
+            {
+              name: "nullifierHash",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "Voting__PollNotActive",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "Voting__VotingClosed",
+          inputs: [],
+        },
+      ],
+      inheritedFunctions: {},
+      deployedOnBlock: 37028795,
+    },
+  },
   11155111: {
     PoseidonT3: {
       address: "0xf3932039eb620c8d5f3acb5d26b07dba9243e296",

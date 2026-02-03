@@ -8,6 +8,7 @@ import { useChallengeStore } from "~~/services/store/zk-store";
 const AllowedVoters = () => {
   const activePollId = useChallengeStore(state => state.currentPollid);
   const { voterManagementList, isLoading } = useVoterManagementLIst(activePollId ? BigInt(activePollId) : undefined);
+
   const totalAllowedVoters = voterManagementList.filter(v => v.status === "approved").length;
   return isLoading ? (
     <StatsSkeleton />

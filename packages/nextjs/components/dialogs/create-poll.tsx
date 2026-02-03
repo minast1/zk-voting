@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { queryClient } from "../ScaffoldEthAppWithProviders";
 import { Label } from "../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Spinner } from "../ui/spinner";
 import { Clock, HelpCircle, Plus } from "lucide-react";
+import { decodeEventLog, parseAbi } from "viem";
 import { usePublicClient } from "wagmi";
 import { Button } from "~~/components/ui/button";
 import {
@@ -45,40 +47,17 @@ export function CreatePollDialog() {
   const setCurrentPollQuestion = useChallengeStore(state => state.setCurrentPollQuestion);
   const { data: votingContractInfo } = useDeployedContractInfo({ contractName: "Voting" });
   const { targetNetwork } = useTargetNetwork();
+
   const publicClient = usePublicClient({ chainId: targetNetwork.id });
-
-  useEffect(() => {
-    if (!publicClient || !votingContractInfo) return;
-    const unwatch = publicClient.watchContractEvent({
-      address: votingContractInfo.address,
-
-      abi: votingContractInfo.abi,
-      eventName: "PollCreated",
-      onLogs: logs => {
-        logs.forEach(log => {
-          const { pollId, endTime, question } = log.args;
-
-          setCurrentPollId(Number(pollId));
-          setCurrentPollQuestion(question);
-          setExpiresAt(endTime);
-          setOpen(false);
-        });
-      },
-      onError: error => {
-        console.error(error);
-      },
-    });
-
-    return () => {
-      unwatch();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [publicClient, votingContractInfo]);
 
   const { writeContractAsync, isPending, isMining } = useScaffoldWriteContract({
     contractName: "Voting",
   });
   const handleCreate = async () => {
+    if (!publicClient || !votingContractInfo) {
+      return;
+    }
+
     if (question.trim().length < 10) {
       setError("Question must be at least 10 characters");
       return;
@@ -95,13 +74,29 @@ export function CreatePollDialog() {
       await writeContractAsync(
         { functionName: "createPoll", args: [question.trim(), BigInt(startTime), BigInt(endTime)] },
         {
-          onBlockConfirmation: () => {
+          onBlockConfirmation: async txReceipt => {
+            const receipt = await publicClient.waitForTransactionReceipt({ hash: txReceipt.transactionHash });
+            const logs = receipt.logs[0];
+            const decodedLog = decodeEventLog({
+              abi: parseAbi([
+                "event PollCreated(uint256 indexed pollId,string question,uint256 startTime, uint256 endTime)",
+              ]),
+              data: logs.data,
+              topics: logs.topics,
+            });
+            setCurrentPollId(Number(decodedLog.args.pollId));
+            setCurrentPollQuestion(decodedLog.args.question);
+            setExpiresAt(decodedLog.args.endTime);
+            await queryClient.invalidateQueries({
+              queryKey: ["voterManagement", votingContractInfo.address, decodedLog.args.pollId.toString()],
+            });
             setLoading(false);
 
             setQuestion("");
             setDuration("300");
 
             setError("");
+            setOpen(false);
           },
         },
       );

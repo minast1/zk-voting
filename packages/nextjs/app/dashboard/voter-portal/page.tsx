@@ -1,14 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { PollCard } from "./_components/poll-card";
 import { AlertCircle, ArrowLeft, Clock, Loader2, Shield, Vote } from "lucide-react";
 import { NextPage } from "next";
+import { useAccount } from "wagmi";
 import { VoterRegistration } from "~~/app/dashboard/voter-portal/_components/voter-registration";
+import { queryClient } from "~~/components/ScaffoldEthAppWithProviders";
 import { Button } from "~~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~~/components/ui/card";
-import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useDeployedContractInfo, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 //import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { useBlockAwareExpiration } from "~~/hooks/useBlockAwareExpiration";
 import useVoterManagementLIst from "~~/hooks/useVoterManagementLIst";
@@ -18,12 +20,14 @@ import { notification } from "~~/utils/scaffold-eth";
 const VotingPage: NextPage = () => {
   const { status, currentPollid } = useBlockAwareExpiration();
   const commitmentData = useChallengeStore(state => state.commitmentData);
+  const { address } = useAccount();
   const { writeContractAsync: requestAccess } = useScaffoldWriteContract({
     contractName: "Voting",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { getVoterStatus, voterRegisteredLogs } = useVoterManagementLIst(currentPollid);
-  const voterStatus = getVoterStatus();
+  const { voterStatus, voterRegisteredLogs } = useVoterManagementLIst(currentPollid);
+  const { data: votingContractInfo } = useDeployedContractInfo({ contractName: "Voting" });
+
   const isOnAllowlist = voterStatus === "approved";
   const isRequestPending = voterStatus === "pending";
 
@@ -34,8 +38,12 @@ const VotingPage: NextPage = () => {
   });
 
   // console.log({ voterRegisteredLogs });
-  const hasRegistered = commitmentData !== null && typeof commitmentData.index !== undefined;
+  const hasRegistered = useMemo(() => {
+    if (!commitmentData) return false;
+    return "index" in commitmentData;
+  }, [commitmentData]);
   const handleSubmitRequest = async () => {
+    if (!votingContractInfo) return;
     setIsSubmitting(true);
     try {
       await requestAccess(
@@ -44,15 +52,48 @@ const VotingPage: NextPage = () => {
           functionName: "requestAccess",
         },
         {
-          blockConfirmations: 1,
-          onBlockConfirmation: () => {
+          onSuccess: async () => {
+            const previousData: any = queryClient.getQueryData([
+              "voterManagement",
+              votingContractInfo.address,
+              currentPollid?.toString(),
+            ]);
+            queryClient.setQueryData(
+              ["voterManagement", votingContractInfo.address, currentPollid?.toString()],
+              (oldData: any) => {
+                if (!oldData) {
+                  return oldData;
+                }
+                const updatedLogs = {
+                  ...oldData,
+                  requestLogs: [
+                    ...(oldData.requestLogs || []),
+                    {
+                      args: { poll_id: BigInt(currentPollid || 0), requester: address },
+                      // Add dummy values to satisfy the log object structure if needed
+                      blockNumber: 0n,
+                      transactionHash: "pending",
+                    },
+                  ],
+                  voterRegsteredLogs: oldData.voterRegsteredLogs,
+                };
+
+                console.log(updatedLogs);
+                return updatedLogs;
+              },
+            );
+            return { previousData };
+          },
+          onBlockConfirmation: async () => {
+            //  await  queryClient.invalidateQueries({
+            //     queryKey: ["voterManagement", votingContractInfo.address, currentPollid?.toString()],
+            //   });
             setIsSubmitting(false);
           },
         },
       );
     } catch (error) {
       notification.error(error instanceof Error ? error.message : String(error));
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -112,15 +153,8 @@ const VotingPage: NextPage = () => {
             </div>
           </div>
 
-          {status === "active" && isOnAllowlist && hasRegistered ? (
-            <PollCard
-              poll={activePoll || []}
-              leafEvents={voterRegisteredLogs || []}
-              _pollId={currentPollid ? Number(currentPollid) : 0}
-              //onVoted={() => setActivePoll(getActivePoll())}
-              animationDelay={0}
-            />
-          ) : status === "active" && !isOnAllowlist && !isRequestPending ? (
+          {/* User is not eligible to participate */}
+          {status === "active" && !isOnAllowlist && !isRequestPending && (
             <Card className="glass-card border-border/50 w-full">
               <CardContent className="py-8 text-center">
                 <AlertCircle className="w-10 h-10 mx-auto mb-3 text-warning" />
@@ -140,7 +174,10 @@ const VotingPage: NextPage = () => {
                 </Button>
               </CardContent>
             </Card>
-          ) : status === "active" && isRequestPending ? (
+          )}
+
+          {/* Requested permission and awaiting response */}
+          {status === "active" && isRequestPending && (
             <Card className="glass-card border-warning/30">
               <CardContent className="py-6">
                 <div className="flex items-center gap-3">
@@ -154,7 +191,20 @@ const VotingPage: NextPage = () => {
                 </div>
               </CardContent>
             </Card>
-          ) : status !== "active" ? (
+          )}
+
+          {status === "active" && isOnAllowlist && hasRegistered && (
+            <PollCard
+              poll={activePoll || []}
+              leafEvents={voterRegisteredLogs || []}
+              _pollId={currentPollid ? Number(currentPollid) : 0}
+              //onVoted={() => setActivePoll(getActivePoll())}
+              animationDelay={0}
+            />
+          )}
+
+          {/* No active poll */}
+          {status !== "active" && (
             <Card className="glass-card border-border/50 border-dashed bg-inherit">
               <CardContent className="py-12 text-center">
                 <Vote className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
@@ -162,7 +212,7 @@ const VotingPage: NextPage = () => {
                 <p className="text-sm text-muted-foreground">Check back later for new voting opportunities</p>
               </CardContent>
             </Card>
-          ) : null}
+          )}
         </div>
       </main>
     </div>

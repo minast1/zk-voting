@@ -5,7 +5,7 @@ import { toSafeSmartAccount } from "permissionless/accounts";
 import { createPimlicoClient } from "permissionless/clients/pimlico";
 import { createPublicClient, encodeFunctionData, http } from "viem";
 import { entryPoint07Address } from "viem/account-abstraction";
-import { sepolia } from "viem/chains";
+import { baseSepolia } from "viem/chains";
 import { ProofData } from "~~/services/store/zk-store";
 
 const apiKey = process.env.NEXT_PUBLIC_PIMLICO_API_KEY;
@@ -19,14 +19,14 @@ export async function invokeSepoliaBurner({ proofData, pollId, contractInfo }: T
   try {
     if (!apiKey) throw new Error("Missing PIMLICO_API_KEY");
 
-    const pimlicoUrl = `https://api.pimlico.io/v2/sepolia/rpc?apikey=${apiKey}`;
-    const RPC_URL = "https://ethereum-sepolia-rpc.publicnode.com";
+    const pimlicoUrl = `https://api.pimlico.io/v2/84532/rpc?apikey=${apiKey}`;
+    const RPC_URL = "https://base-sepolia-rpc.publicnode.com";
     const publicClient = createPublicClient({
-      chain: sepolia,
+      chain: baseSepolia,
       transport: http(RPC_URL),
     });
     const pimlicoClient = createPimlicoClient({
-      chain: sepolia,
+      chain: baseSepolia,
       transport: http(pimlicoUrl),
       entryPoint: {
         address: entryPoint07Address,
@@ -46,7 +46,7 @@ export async function invokeSepoliaBurner({ proofData, pollId, contractInfo }: T
     //smart account address = account.address
     const smartAccountClient = createSmartAccountClient({
       account,
-      chain: sepolia,
+      chain: baseSepolia,
       bundlerTransport: http(pimlicoUrl),
       paymaster: pimlicoClient,
       userOperation: {

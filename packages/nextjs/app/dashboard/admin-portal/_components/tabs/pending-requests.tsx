@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { CheckCircle2, ClipboardList } from "lucide-react";
 import { Address } from "~~/components/Address/address";
+import { queryClient } from "~~/components/ScaffoldEthAppWithProviders";
 import { Badge } from "~~/components/ui/badge";
 //import { Badge } from "~~/components/ui/badge";
 import { Button } from "~~/components/ui/button";
 import { Card, CardContent } from "~~/components/ui/card";
 import { Spinner } from "~~/components/ui/spinner";
 import { TabsContent } from "~~/components/ui/tabs";
-import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useDeployedContractInfo, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import useVoterManagementLIst from "~~/hooks/useVoterManagementLIst";
 import { useChallengeStore } from "~~/services/store/zk-store";
 import { notification } from "~~/utils/scaffold-eth";
@@ -16,28 +17,65 @@ const PendingRequestsTab = () => {
   const poll_id = useChallengeStore(state => state.currentPollid);
   const [isLoading, setIsLoading] = useState(false);
   const { voterManagementList } = useVoterManagementLIst(poll_id ? BigInt(poll_id) : undefined);
+  const { data: votingContractInfo } = useDeployedContractInfo({ contractName: "Voting" });
+
   const pendingRequests = voterManagementList.filter(v => v.status === "pending");
 
   const { writeContractAsync } = useScaffoldWriteContract({ contractName: "Voting" });
   const handleApprove = async (requester: string) => {
+    if (!votingContractInfo) return;
     setIsLoading(true);
     try {
-      writeContractAsync(
+      await writeContractAsync(
         {
           functionName: "addVoters",
           args: [[requester], BigInt(poll_id || 0n), [true]],
         },
+
         {
+          onSuccess: async () => {
+            const previousData: any = queryClient.getQueryData([
+              "voterManagement",
+              votingContractInfo.address,
+              poll_id?.toString(),
+            ]);
+            queryClient.setQueryData(
+              ["voterManagement", votingContractInfo.address, poll_id?.toString()],
+              (oldData: any) => {
+                if (!oldData) {
+                  return oldData;
+                }
+                const updatedLogs = {
+                  ...oldData,
+                  approvalLogs: [
+                    ...(oldData.approvalLogs || []),
+                    {
+                      args: { voter: pendingRequests[0].address, poll_id: BigInt(poll_id || 0) },
+                      // Add dummy values to satisfy the log object structure if needed
+                      blockNumber: 0n,
+                      transactionHash: "pending",
+                    },
+                  ],
+                  voterRegsteredLogs: oldData.voterRegsteredLogs,
+                };
+
+                console.log(updatedLogs);
+                return updatedLogs;
+              },
+            );
+            return { previousData };
+          },
           blockConfirmations: 1,
-          onBlockConfirmation: () => {
+          onBlockConfirmation: async () => {
+            // await queryClient.invalidateQueries({
+            //   queryKey: ["voterManagement", votingContractInfo.address, poll_id?.toString()],
+            // });
             setIsLoading(false);
           },
         },
       );
     } catch (error) {
       notification.error(error instanceof Error ? error.message : String(error));
-      setIsLoading(false);
-    } finally {
       setIsLoading(false);
     }
   };

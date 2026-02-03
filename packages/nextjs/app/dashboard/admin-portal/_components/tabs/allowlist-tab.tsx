@@ -13,11 +13,11 @@ import { useChallengeStore } from "~~/services/store/zk-store";
 
 const AllowListTab = () => {
   const pollId = useChallengeStore(state => state.currentPollid);
-  const { approvalLogs } = useVoterManagementLIst(pollId ? BigInt(pollId) : undefined);
+  const { approvalLogs, isLoading } = useVoterManagementLIst(pollId ? BigInt(pollId) : undefined);
 
   return (
     <TabsContent value="voters" className="space-y-4">
-      {!approvalLogs ? (
+      {isLoading ? (
         <AllowListSkeleton />
       ) : (
         <>
@@ -27,7 +27,7 @@ const AllowListTab = () => {
           </div>
 
           <Card className="glass-card border-border/50">
-            {approvalLogs.length === 0 ? (
+            {!approvalLogs || approvalLogs.length === 0 ? (
               <CardContent className="py-12 text-center">
                 <Users className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
                 <p className="text-lg font-medium mb-2">No Voters Added</p>

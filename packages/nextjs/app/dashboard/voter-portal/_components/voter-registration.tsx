@@ -8,8 +8,8 @@ import { Card, CardContent } from "../../../../components/ui/card";
 import { Spinner } from "../../../../components/ui/spinner";
 import { CheckCircle } from "lucide-react";
 import { decodeEventLog, parseAbi } from "viem";
-import { usePublicClient } from "wagmi";
-import { useDeployedContractInfo, useScaffoldWriteContract, useTargetNetwork } from "~~/hooks/scaffold-eth";
+import { queryClient } from "~~/components/ScaffoldEthAppWithProviders";
+import { useDeployedContractInfo, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 //import useVoterData from "~~/hooks/useVoterData";
 import { CommitmentData, useChallengeStore } from "~~/services/store/zk-store";
 import { notification } from "~~/utils/scaffold-eth";
@@ -27,8 +27,6 @@ const generateCommitment = async (): Promise<CommitmentData> => {
 export const VoterRegistration = ({ _pollId }: VoterRegistrationProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
-  const { targetNetwork } = useTargetNetwork();
-  const publicClient = usePublicClient({ chainId: targetNetwork.id });
   const setCommitmentData = useChallengeStore(state => state.setCommitmentData);
   const commitmentData = useChallengeStore(state => state.commitmentData);
   const { data: votingContract } = useDeployedContractInfo({ contractName: "Voting" });
@@ -53,10 +51,11 @@ export const VoterRegistration = ({ _pollId }: VoterRegistrationProps) => {
   };
 
   const handleRegister = async () => {
-    if (!_pollId || !publicClient || !votingContract) {
+    if (!_pollId || !votingContract) {
       notification.error("No Active Poll..Please Generate Poll First");
       return;
     }
+
     const commitmentData = await handleGenerateCommitment();
     const { commitment } = commitmentData;
     setIsRegistering(true);
@@ -69,14 +68,19 @@ export const VoterRegistration = ({ _pollId }: VoterRegistrationProps) => {
         },
         {
           onBlockConfirmation: async txReceipt => {
-            const receipt = await publicClient.waitForTransactionReceipt({ hash: txReceipt.transactionHash });
-            const logs = receipt.logs[0];
+            //  const receipt = await publicClient.waitForTransactionReceipt({ hash: txReceipt.transactionHash });
+
+            const logs = txReceipt.logs[0];
             const decodedLog = decodeEventLog({
               abi: parseAbi(["event CommitmentRegistered(uint256 indexed pollId,uint256 indexed index,uint256 value)"]),
               data: logs.data,
               topics: logs.topics,
             });
+            await queryClient.invalidateQueries({
+              queryKey: ["voterManagement", votingContract.address, _pollId.toString()],
+            });
             updateCommitmentIndex(Number(decodedLog.args.index));
+
             setIsRegistering(false);
           },
         },

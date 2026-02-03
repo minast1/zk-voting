@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useDeployedContractInfo } from "./scaffold-eth";
 import { useQuery } from "@tanstack/react-query";
 import { parseAbiItem } from "viem";
@@ -27,9 +27,13 @@ const useVoterManagementLIst = (pollId: bigint | undefined) => {
   const { data: contractData } = useDeployedContractInfo({
     contractName: "Voting",
   });
-  const { data: logs, isLoading } = useQuery({
+  const {
+    data: logs,
+    isLoading,
+    refetch,
+  } = useQuery({
     enabled: !!publicClient && !!contractData && pollId !== undefined,
-    queryKey: ["voterManagement", contractData?.address, pollId?.toString],
+    queryKey: ["voterManagement", contractData?.address, pollId?.toString()],
     queryFn: async () => {
       //Fetch both sets of logs in parallel
       const [requestLogs, approvalLogs, voterRegisteredLogs] = await Promise.all([
@@ -57,11 +61,14 @@ const useVoterManagementLIst = (pollId: bigint | undefined) => {
 
       return { requestLogs, approvalLogs, voterRegisteredLogs };
     },
-    refetchInterval: 30000, //5seconds
+    //staleTime: 5 * 60 * 1000, // Consider logs "fresh" for 5 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchInterval: 20000, // Refresh every 20 seconds
   });
 
   const voterManagementList = React.useMemo(() => {
-    if (!logs) return [];
+    if (!logs || pollId === undefined) return [];
 
     // const approvedSet = new Set(logs.approvalLogs?.map(e => e.args.voter?.toLocaleLowerCase()));
 
@@ -93,8 +100,9 @@ const useVoterManagementLIst = (pollId: bigint | undefined) => {
       }
     });
     return Array.from(voterMap.values()).sort((a, b) => Number(b.timestamp - a.timestamp));
-  }, [logs]);
-  const getVoterStatus = (): VoterStatus => {
+  }, [logs, pollId]);
+
+  const voterStatus = useMemo((): VoterStatus => {
     if (!userAddress || !pollId || !logs?.requestLogs) return "none";
 
     const userRequest = voterManagementList.find(
@@ -102,14 +110,15 @@ const useVoterManagementLIst = (pollId: bigint | undefined) => {
     );
 
     return userRequest?.status || "none";
-  };
+  }, [userAddress, pollId, logs?.requestLogs, voterManagementList]);
 
   return {
     voterManagementList,
-    getVoterStatus,
+    voterStatus,
     isLoading,
     approvalLogs: logs?.approvalLogs,
     voterRegisteredLogs: logs?.voterRegisteredLogs,
+    refetch,
   };
 };
 

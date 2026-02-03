@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { queryClient } from "../ScaffoldEthAppWithProviders";
 import { AddressInput } from "../address-input";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
@@ -13,7 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, UserPlus, X } from "lucide-react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
-import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useDeployedContractInfo, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { allowListSchema } from "~~/lib/schema";
 import { useChallengeStore } from "~~/services/store/zk-store";
 
@@ -22,6 +23,7 @@ export function AddVoterDialog() {
   const [allowStatus] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const pollId = useChallengeStore(state => state.currentPollid);
+  const { data: votingContractInfo } = useDeployedContractInfo({ contractName: "Voting" });
   const { writeContractAsync, isPending, isMining } = useScaffoldWriteContract({
     contractName: "Voting",
   });
@@ -40,6 +42,7 @@ export function AddVoterDialog() {
   });
 
   const handleBulkAdd = async (data: AllowListSchema) => {
+    if (!votingContractInfo) return;
     // console.log(data);
     setIsLoading(true);
     try {
@@ -49,9 +52,44 @@ export function AddVoterDialog() {
           args: [data.list.map(item => item.address), BigInt(pollId || 0n), data.list.map(item => item.status)],
         },
         {
-          onBlockConfirmation: () => {
+          onSuccess: async () => {
+            const previousData: any = queryClient.getQueryData([
+              "voterManagement",
+              votingContractInfo.address,
+              pollId?.toString(),
+            ]);
+            queryClient.setQueryData(
+              ["voterManagement", votingContractInfo.address, pollId?.toString()],
+              (oldData: any) => {
+                if (!oldData) {
+                  return oldData;
+                }
+                const updatedLogs = {
+                  ...oldData,
+                  approvalLogs: [
+                    ...(oldData.approvalLogs || []),
+                    ...data.list.map(item => ({
+                      args: { voter: item.address, poll_id: BigInt(pollId || 0) },
+                      // Add dummy values to satisfy the log object structure if needed
+                      blockNumber: 0n,
+                      transactionHash: "pending",
+                    })),
+                  ],
+                  voterRegsteredLogs: oldData.voterRegsteredLogs,
+                };
+
+                return updatedLogs;
+              },
+            );
+            return { previousData };
+          },
+          onBlockConfirmation: async () => {
+            // await queryClient.invalidateQueries({
+            //   queryKey: ["voterManagement", votingContractInfo.address, pollId?.toString()],
+            // });
             form.reset();
             setIsLoading(false);
+
             setOpen(false);
           },
         },
