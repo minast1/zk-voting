@@ -16,7 +16,12 @@ export async function POST(request: Request) {
   const leaves = leafEvents.map((event: any) => {
     return event?.args.value;
   });
-
+  if (Number(index) > leaves.length) {
+    return NextResponse.json(
+      { error: `Merkle Tree mismatch: index ${index} requested but only ${leaves.length} leaves provided.` },
+      { status: 400 },
+    );
+  }
   // const leavesReversed = leaves.reverse();
   calculatedTree.insertMany(leaves as bigint[]);
   const calculatedProof = calculatedTree.generateProof(Number(index));

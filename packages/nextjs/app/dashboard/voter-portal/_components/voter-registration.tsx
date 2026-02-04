@@ -20,8 +20,11 @@ interface VoterRegistrationProps {
 
 const generateCommitment = async (): Promise<CommitmentData> => {
   const res = await fetch("/api/commitment", { method: "POST" });
-  const { commitment, nullifier, secret } = await res.json();
-  return { commitment, nullifier, secret };
+  if (res.ok) {
+    const { commitment, nullifier, secret } = await res.json();
+    return { commitment, nullifier, secret };
+  }
+  throw new Error("Failed to generate commitment");
 };
 
 export const VoterRegistration = ({ _pollId }: VoterRegistrationProps) => {
@@ -42,6 +45,7 @@ export const VoterRegistration = ({ _pollId }: VoterRegistrationProps) => {
       setCommitmentData(commitment);
 
       setIsGenerating(false);
+
       return commitment;
     } catch (error) {
       console.log("Error generating commitment:", error);

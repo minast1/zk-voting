@@ -37,10 +37,10 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
   const { data: mainWalletClient } = useConnectorClient({
     chainId: targetNetwork.id,
   });
-  console.log(leafEvents);
+  //console.log(leafEvents);
 
   const CommitmentData = useChallengeStore(state => state.commitmentData);
-  console.log({ index: CommitmentData?.index });
+
   const setProofGenerated = useChallengeStore(state => state.setProofGenerated);
   const setProofData = useChallengeStore(state => state.setProofData);
   const proofData = useChallengeStore(state => state.proofData);
@@ -92,46 +92,49 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
       return;
     }
     //refetch leaf events
-    refetch();
-    const currentIndex = CommitmentData.index;
-    if (currentIndex === undefined || currentIndex === null) {
-      console.log("Debug - CommitmentData found but index missing:", CommitmentData);
-      notification.error("Registration data is still synchronizing. Please wait a moment.");
-      return;
-    }
-    setIsGenerating(true);
-    try {
-      const proofData = await fetch("/api/proof", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-
-        body: stringifyBigInt({
-          nullifier: CommitmentData.nullifier,
-          poll_id: _pollId,
-          secret: CommitmentData.secret,
-          root: poll[7], // ✅
-          depth: poll[6],
-          index: CommitmentData.index,
-          leafEvents,
-          selectedVote,
-        }),
-      });
-
-      if (proofData.ok) {
-        const res = await proofData.json();
-
-        setProofGenerated(true);
-        setProofData({ proof: res.proof, publicInputs: res.publicInputs });
-        setIsGenerating(false);
-        return res;
-      } else {
-        throw new Error("Proof generation failed..Please try again");
+    const { isSuccess, data } = await refetch();
+    if (isSuccess && data) {
+      const events = data.voterRegisteredLogs;
+      const currentIndex = CommitmentData.index;
+      if (currentIndex === undefined || currentIndex === null) {
+        console.log("Debug - CommitmentData found but index missing:", CommitmentData);
+        notification.error("Registration data is still synchronizing. Please wait a moment.");
+        return;
       }
-    } catch (error) {
-      notification.error(error instanceof Error ? error.message : String(error));
-      setIsGenerating(false);
+      setIsGenerating(true);
+      try {
+        const proofData = await fetch("/api/proof", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: stringifyBigInt({
+            nullifier: CommitmentData.nullifier,
+            poll_id: _pollId,
+            secret: CommitmentData.secret,
+            root: poll[7], // ✅
+            depth: poll[6],
+            index: CommitmentData.index,
+            leafEvents: events,
+            selectedVote,
+          }),
+        });
+
+        if (proofData.ok) {
+          const res = await proofData.json();
+
+          setProofGenerated(true);
+          setProofData({ proof: res.proof, publicInputs: res.publicInputs });
+          setIsGenerating(false);
+          return res;
+        } else {
+          throw new Error("Proof generation failed..Please try again");
+        }
+      } catch (error) {
+        notification.error(error instanceof Error ? error.message : String(error));
+        setIsGenerating(false);
+      }
     }
   };
 
