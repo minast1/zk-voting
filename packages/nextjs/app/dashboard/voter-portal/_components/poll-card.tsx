@@ -10,6 +10,7 @@ import { Progress } from "~~/components/ui/progress";
 import { TxnNotification, useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { useBlockAwareExpiration } from "~~/hooks/useBlockAwareExpiration";
+import useVoterManagementLIst from "~~/hooks/useVoterManagementLIst";
 import { invokeLocalBurner } from "~~/lib/local-burner";
 import { invokeSepoliaBurner } from "~~/lib/sepolia-burner";
 import { timeAgo } from "~~/lib/time-converter";
@@ -36,8 +37,10 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
   const { data: mainWalletClient } = useConnectorClient({
     chainId: targetNetwork.id,
   });
+  console.log(leafEvents);
 
   const CommitmentData = useChallengeStore(state => state.commitmentData);
+  console.log({ index: CommitmentData?.index });
   const setProofGenerated = useChallengeStore(state => state.setProofGenerated);
   const setProofData = useChallengeStore(state => state.setProofData);
   const proofData = useChallengeStore(state => state.proofData);
@@ -45,6 +48,7 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
   const setHasVoted = useChallengeStore(state => state.setHasVoted);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGeneratingProof, setIsGenerating] = useState(false);
+  const { refetch } = useVoterManagementLIst(BigInt(_pollId));
 
   const { data: contractInfo } = useDeployedContractInfo({ contractName: "Voting" });
   //console.log(uint8ArrayToHexString(proofData?.proof));
@@ -79,12 +83,20 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
   const hasRegistered = useMemo(() => {
     if (!CommitmentData) return false;
     return "index" in CommitmentData;
-  }, [CommitmentData, CommitmentData?.index]);
+  }, [CommitmentData]);
 
   //CommitmentData !== null && typeof CommitmentData.index !== undefined;
   const generateMerkleProof = async () => {
-    if (!CommitmentData || !hasRegistered) {
-      notification.error("User registration not complete please try again");
+    if (!CommitmentData) {
+      notification.error("No commitment data found");
+      return;
+    }
+    //refetch leaf events
+    refetch();
+    const currentIndex = CommitmentData.index;
+    if (currentIndex === undefined || currentIndex === null) {
+      console.log("Debug - CommitmentData found but index missing:", CommitmentData);
+      notification.error("Registration data is still synchronizing. Please wait a moment.");
       return;
     }
     setIsGenerating(true);

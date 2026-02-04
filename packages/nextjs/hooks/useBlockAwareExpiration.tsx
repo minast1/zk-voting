@@ -8,7 +8,7 @@ export function useBlockAwareExpiration() {
   const resetStore = useChallengeStore(state => state.reset);
   const { targetNetwork } = useTargetNetwork();
   const publicClient = usePublicClient({ chainId: targetNetwork.id });
-  const { data: currentPollid } = useScaffoldReadContract({
+  const { data: currentPollid, isLoading: isLoadingPollCount } = useScaffoldReadContract({
     contractName: "Voting",
     functionName: "getPollCount",
   });
@@ -57,5 +57,5 @@ export function useBlockAwareExpiration() {
     },
   });
 
-  return { status, currentPollid };
+  return { status, currentPollid, isLoadingPollCount };
 }

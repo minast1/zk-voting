@@ -3,6 +3,8 @@
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { PollCard } from "./_components/poll-card";
+import PollCardSkeleton from "./_components/pollcard-skeleton";
+import RegistrationSkeleton from "./_components/registration-skeleton";
 import { AlertCircle, ArrowLeft, Clock, Loader2, Shield, Vote } from "lucide-react";
 import { NextPage } from "next";
 import { useAccount } from "wagmi";
@@ -18,14 +20,14 @@ import { useChallengeStore } from "~~/services/store/zk-store";
 import { notification } from "~~/utils/scaffold-eth";
 
 const VotingPage: NextPage = () => {
-  const { status, currentPollid } = useBlockAwareExpiration();
+  const { status, currentPollid, isLoadingPollCount } = useBlockAwareExpiration();
   const commitmentData = useChallengeStore(state => state.commitmentData);
   const { address } = useAccount();
   const { writeContractAsync: requestAccess } = useScaffoldWriteContract({
     contractName: "Voting",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { voterStatus, voterRegisteredLogs } = useVoterManagementLIst(currentPollid);
+  const { voterStatus, voterRegisteredLogs, isLoading } = useVoterManagementLIst(currentPollid);
   const { data: votingContractInfo } = useDeployedContractInfo({ contractName: "Voting" });
 
   const isOnAllowlist = voterStatus === "approved";
@@ -131,7 +133,9 @@ const VotingPage: NextPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {isOnAllowlist && (
+                {isLoadingPollCount ? (
+                  <RegistrationSkeleton />
+                ) : (
                   <div>
                     <VoterRegistration _pollId={currentPollid ? Number(currentPollid) : 0} />
                   </div>
@@ -193,15 +197,20 @@ const VotingPage: NextPage = () => {
             </Card>
           )}
 
-          {status === "active" && isOnAllowlist && hasRegistered && (
-            <PollCard
-              poll={activePoll || []}
-              leafEvents={voterRegisteredLogs || []}
-              _pollId={currentPollid ? Number(currentPollid) : 0}
-              //onVoted={() => setActivePoll(getActivePoll())}
-              animationDelay={0}
-            />
-          )}
+          {status === "active" &&
+            isOnAllowlist &&
+            hasRegistered &&
+            (voterRegisteredLogs && voterRegisteredLogs.length > 0 && !isLoading ? (
+              <PollCard
+                poll={activePoll || []}
+                leafEvents={voterRegisteredLogs}
+                _pollId={currentPollid ? Number(currentPollid) : 0}
+                //onVoted={() => setActivePoll(getActivePoll())}
+                animationDelay={0}
+              />
+            ) : (
+              <PollCardSkeleton />
+            ))}
 
           {/* No active poll */}
           {status !== "active" && (

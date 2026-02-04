@@ -69,17 +69,31 @@ export const VoterRegistration = ({ _pollId }: VoterRegistrationProps) => {
         {
           onBlockConfirmation: async txReceipt => {
             //  const receipt = await publicClient.waitForTransactionReceipt({ hash: txReceipt.transactionHash });
+            const registeredLog = txReceipt.logs
+              .map(log => {
+                try {
+                  return decodeEventLog({
+                    abi: parseAbi([
+                      "event CommitmentRegistered(uint256 indexed pollId,uint256 indexed index,uint256 value)",
+                    ]),
+                    data: log.data,
+                    topics: log.topics,
+                  });
+                } catch {
+                  return null;
+                }
+              })
+              .find(decoded => decoded?.eventName === "CommitmentRegistered");
 
-            const logs = txReceipt.logs[0];
-            const decodedLog = decodeEventLog({
-              abi: parseAbi(["event CommitmentRegistered(uint256 indexed pollId,uint256 indexed index,uint256 value)"]),
-              data: logs.data,
-              topics: logs.topics,
-            });
+            if (!registeredLog) throw new Error("Registration event not found in logs");
+
+            const newIndex = Number(registeredLog.args.index);
+            updateCommitmentIndex(newIndex);
+
             await queryClient.invalidateQueries({
               queryKey: ["voterManagement", votingContract.address, _pollId.toString()],
             });
-            updateCommitmentIndex(Number(decodedLog.args.index));
+            notification.success("Voter Registeration Successful.!");
 
             setIsRegistering(false);
           },
