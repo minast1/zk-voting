@@ -13,11 +13,11 @@ import { useChallengeStore } from "~~/services/store/zk-store";
 
 const PollmonitorTab = () => {
   const currentPollId = useChallengeStore(state => state.currentPollid);
-  const setCurrentPollId = useChallengeStore(state => state.setCurrentPollId);
-  const setExpiresAt = useChallengeStore(state => state.setExpiresAt);
+  //const setCurrentPollId = useChallengeStore(state => state.setCurrentPollId);
+  //const setExpiresAt = useChallengeStore(state => state.setExpiresAt);
   const expiresAt = useChallengeStore(state => state.expiresAt);
   const question = useChallengeStore(state => state.currentPollQuestion);
-  const setCurrentQuestion = useChallengeStore(state => state.setCurrentPollQuestion);
+  const resetStore = useChallengeStore(state => state.reset);
   const hasHydrated = useChallengeStore(state => state.hasHydrated);
 
   const { data: poll, isLoading } = useScaffoldReadContract({
@@ -60,9 +60,7 @@ const PollmonitorTab = () => {
 
   useEffect(() => {
     if (isExpired && currentPollId !== undefined) {
-      setCurrentPollId(undefined);
-      setCurrentQuestion(undefined);
-      setExpiresAt(undefined);
+      resetStore();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isExpired, hasHydrated]);

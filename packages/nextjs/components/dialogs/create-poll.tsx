@@ -3,6 +3,7 @@ import { queryClient } from "../ScaffoldEthAppWithProviders";
 import { Label } from "../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Spinner } from "../ui/spinner";
+import { Textarea } from "../ui/textarea";
 import { Clock, HelpCircle, Plus } from "lucide-react";
 import { decodeEventLog, parseAbi } from "viem";
 import { usePublicClient } from "wagmi";
@@ -15,7 +16,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~~/components/ui/dialog";
-import { Input } from "~~/components/ui/input";
+//import { Input } from "~~/components/ui/input";
 import { useDeployedContractInfo, useScaffoldWriteContract, useTargetNetwork } from "~~/hooks/scaffold-eth";
 import { useChallengeStore } from "~~/services/store/zk-store";
 import { notification } from "~~/utils/scaffold-eth";
@@ -124,14 +125,14 @@ export function CreatePollDialog() {
         <form className="space-y-4 pt-4" onSubmit={e => e.preventDefault()}>
           <div className="space-y-2">
             <Label className="text-sm font-medium text-muted-foreground">Your Question</Label>
-            <Input
+            <Textarea
               placeholder="Should we implement feature X?"
               value={question}
               onChange={e => {
                 setQuestion(e.target.value);
                 setError("");
               }}
-              className="bg-secondary/50 border-border focus:border-primary"
+              className="bg-secondary/50 border-border focus:border-primary min-h-20"
             />
             {error && <p className="text-xs text-destructive">{error}</p>}
           </div>

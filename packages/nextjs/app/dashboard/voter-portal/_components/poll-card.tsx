@@ -79,7 +79,7 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
   const hasRegistered = useMemo(() => {
     if (!CommitmentData) return false;
     return "index" in CommitmentData;
-  }, [CommitmentData]);
+  }, [CommitmentData, CommitmentData?.index]);
 
   //CommitmentData !== null && typeof CommitmentData.index !== undefined;
   const generateMerkleProof = async () => {
@@ -115,7 +115,7 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
         setIsGenerating(false);
         return res;
       } else {
-        throw new Error("Proof generation failed");
+        throw new Error("Proof generation failed..Please try again");
       }
     } catch (error) {
       notification.error(error instanceof Error ? error.message : String(error));
