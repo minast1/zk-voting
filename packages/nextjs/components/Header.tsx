@@ -1,23 +1,18 @@
 "use client";
 
 import React from "react";
+import TestnetFaucetButton from "./TestnetFaucetButton";
 import { FaucetButton, RainbowKitCustomConnectButton } from "./scaffold-eth";
-//import Image from "next/image";
-//import Link from "next/link";
-//import { usePathname } from "next/navigation";
-//import { hardhat } from "viem/chains";
-//import { Bars3Icon } from "@heroicons/react/24/outline";
-//import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
-import { Button } from "./ui/button";
-import { LogOut, Shield, User } from "lucide-react";
+//import { Button } from "./ui/button";
+import { Shield } from "lucide-react";
 import { hardhat } from "viem/chains";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth";
 
-interface HeaderProps {
-  voter: boolean | null;
-  onLogout: () => void;
-}
-export const Header = ({ voter, onLogout }: HeaderProps) => {
+// interface HeaderProps {
+//   voter: boolean | null;
+//   onLogout: () => void;
+// }
+export const Header = () => {
   const { targetNetwork } = useTargetNetwork();
   const isLocalNetwork = targetNetwork.id === hardhat.id;
 
@@ -37,26 +32,28 @@ export const Header = ({ voter, onLogout }: HeaderProps) => {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
             <RainbowKitCustomConnectButton />
-            {isLocalNetwork && <FaucetButton />}
+            {isLocalNetwork ? <FaucetButton /> : <TestnetFaucetButton />}
             {/* <SwitchTheme /> */}
           </div>
-          {voter && (
-            <>
-              <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground">
-                <User className="w-4 h-4" />
-                <span className="font-mono text-primary">
-                  {/* {voter.hashedId.slice(0, 8)}... */}
-                  0x568865...
-                </span>
-              </div>
-              <Button variant="ghost" size="sm" onClick={onLogout} className="gap-2">
-                <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">Sign Out</span>
-              </Button>
-            </>
-          )}
         </div>
       </div>
     </header>
   );
 };
+
+//goes on line 37
+//  {voter && (
+//             <>
+//               <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground">
+//                 <User className="w-4 h-4" />
+//                 <span className="font-mono text-primary">
+//                   {/* {voter.hashedId.slice(0, 8)}... */}
+//                   0x568865...
+//                 </span>
+//               </div>
+//               <Button variant="ghost" size="sm" onClick={onLogout} className="gap-2">
+//                 <LogOut className="w-4 h-4" />
+//                 <span className="hidden sm:inline">Sign Out</span>
+//               </Button>
+//             </>
+//           )}
