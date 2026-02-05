@@ -13,6 +13,7 @@ import { ChainWithAttributes, NETWORKS_EXTRA_DATA } from "~~/utils/scaffold-eth"
 
 type GlobalState = {
   targetNetwork: ChainWithAttributes;
+
   setTargetNetwork: (newTargetNetwork: ChainWithAttributes) => void;
 };
 

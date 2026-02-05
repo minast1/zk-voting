@@ -8,7 +8,12 @@ const TestnetFaucetButton = () => {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button asChild variant="outline" size="sm" className="border-accent/50 hover:bg-accent/20 hover:border-accent">
+        <Button
+          asChild
+          variant="outline"
+          size="sm"
+          className="hidden sm:flex border-border-accent/50 hover:bg-accent/20 hover:border-accent"
+        >
           <Link href="https://console.optimism.io/faucet">
             <Droplets className="h-4 w-4 mr-1 text-accent" />
             <span className="hidden sm:inline">Faucet</span>
