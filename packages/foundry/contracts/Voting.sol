@@ -54,7 +54,7 @@ contract Voting is Ownable {
     mapping(uint256 => mapping(address => RequestStatus))
         private s_requestStatus;
     mapping(address => bool) private s_voters;
-    //mapping(uint256 => uint256) private s_allowedVoters;
+    mapping(uint256 => uint256) private s_allowedVoters;
     mapping(uint256 => mapping(address => bool)) private s_hasRegistered;
 
     IVerifier private i_verifier;
