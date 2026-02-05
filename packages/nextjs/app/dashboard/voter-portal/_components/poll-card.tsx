@@ -16,6 +16,7 @@ import { invokeSepoliaBurner } from "~~/lib/sepolia-burner";
 import { timeAgo } from "~~/lib/time-converter";
 //import uint8ArrayToHexString from "~~/lib/uint-to-hex";
 import { cn } from "~~/lib/utils";
+import { generateProofLocally } from "~~/lib/zk-proof";
 import { useChallengeStore } from "~~/services/store/zk-store";
 import { getBlockExplorerTxLink, notification } from "~~/utils/scaffold-eth";
 
@@ -26,9 +27,9 @@ interface PollCardProps {
   _pollId: number;
 }
 
-function stringifyBigInt(obj: any) {
-  return JSON.stringify(obj, (_, value) => (typeof value === "bigint" ? value.toString() : value));
-}
+// function stringifyBigInt(obj: any) {
+//   return JSON.stringify(obj, (_, value) => (typeof value === "bigint" ? value.toString() : value));
+// }
 
 export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: PollCardProps) => {
   const [selectedVote, setSelectedVote] = useState<"yes" | "no" | null>(null);
@@ -92,6 +93,7 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
       return;
     }
     //refetch leaf events
+    const circuitData = await fetch("/circuits.json").then(res => res.json());
     const { isSuccess, data } = await refetch();
     if (isSuccess && data) {
       const events = data.voterRegisteredLogs;
@@ -103,31 +105,23 @@ export const PollCard = ({ poll, animationDelay = 0, leafEvents, _pollId }: Poll
       }
       setIsGenerating(true);
       try {
-        const proofData = await fetch("/api/proof", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+        const payload = {
+          nullifier: CommitmentData.nullifier,
+          poll_id: _pollId,
+          secret: CommitmentData.secret,
+          root: poll[7], // ✅
+          depth: poll[6],
+          index: CommitmentData.index,
+          leafEvents: events,
+          selectedVote,
+        };
+        const proofData = await generateProofLocally(payload, circuitData);
 
-          body: stringifyBigInt({
-            nullifier: CommitmentData.nullifier,
-            poll_id: _pollId,
-            secret: CommitmentData.secret,
-            root: poll[7], // ✅
-            depth: poll[6],
-            index: CommitmentData.index,
-            leafEvents: events,
-            selectedVote,
-          }),
-        });
-
-        if (proofData.ok) {
-          const res = await proofData.json();
-
+        if (proofData) {
           setProofGenerated(true);
-          setProofData({ proof: res.proof, publicInputs: res.publicInputs });
+          setProofData({ proof: proofData.proof, publicInputs: proofData.publicInputs });
           setIsGenerating(false);
-          return res;
+          return proofData;
         } else {
           throw new Error("Proof generation failed..Please try again");
         }

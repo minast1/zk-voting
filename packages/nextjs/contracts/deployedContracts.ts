@@ -297,13 +297,6 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "requestAllowList",
-          inputs: [],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
           name: "transferOwnership",
           inputs: [
             {
@@ -363,25 +356,6 @@ const deployedContracts = {
               indexed: true,
               internalType: "uint256",
             },
-            {
-              name: "requester",
-              type: "address",
-              indexed: true,
-              internalType: "address",
-            },
-            {
-              name: "timestamp",
-              type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "AllowListRequest",
-          inputs: [
             {
               name: "requester",
               type: "address",
@@ -731,7 +705,7 @@ const deployedContracts = {
       deployedOnBlock: 37028795,
     },
     Voting: {
-      address: "0x55df81d2bdfdf5c558a3c0f02167db2dda5d3fe7",
+      address: "0xd4014440fbdf60d4f646317dbc50ee2dab2e4ba5",
       abi: [
         {
           type: "constructor",
@@ -963,13 +937,6 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "requestAllowList",
-          inputs: [],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
           name: "transferOwnership",
           inputs: [
             {
@@ -1029,25 +996,6 @@ const deployedContracts = {
               indexed: true,
               internalType: "uint256",
             },
-            {
-              name: "requester",
-              type: "address",
-              indexed: true,
-              internalType: "address",
-            },
-            {
-              name: "timestamp",
-              type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "AllowListRequest",
-          inputs: [
             {
               name: "requester",
               type: "address",
@@ -1334,7 +1282,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 37028795,
+      deployedOnBlock: 37241094,
     },
   },
   11155111: {
@@ -1629,13 +1577,6 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "requestAllowList",
-          inputs: [],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
           name: "transferOwnership",
           inputs: [
             {
@@ -1695,25 +1636,6 @@ const deployedContracts = {
               indexed: true,
               internalType: "uint256",
             },
-            {
-              name: "requester",
-              type: "address",
-              indexed: true,
-              internalType: "address",
-            },
-            {
-              name: "timestamp",
-              type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "AllowListRequest",
-          inputs: [
             {
               name: "requester",
               type: "address",
