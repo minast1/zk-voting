@@ -76,7 +76,6 @@ contract Voting is Ownable {
     );
     event VoterAdded(address indexed voter, uint256 indexed poll_id);
     // event NewLeaf(uint256 index, uint256 value);
-    event AllowListRequest(address indexed requester, uint256 timestamp);
 
     event CommitmentRegistered(
         uint256 indexed pollId,
@@ -295,10 +294,6 @@ contract Voting is Ownable {
         voter = s_voters[_voter];
         // /// Checkpoint 2 //////
         registered = s_hasRegistered[pollId][_voter];
-    }
-
-    function requestAllowList() external {
-        emit AllowListRequest(msg.sender, block.timestamp);
     }
 
     function getPollCount() external view returns (uint256) {
