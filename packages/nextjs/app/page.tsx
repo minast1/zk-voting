@@ -22,7 +22,7 @@ const Home: NextPage = () => {
       <div className="space-y-12 max-w-5xl mx-auto">
         {/* Hero Section */}
         <div className="text-center space-y-4 md:space-y-6 py-2 md:py-8 animate-fade-in">
-          <div className="flex md:hidden items-center  gap-2 px-2 py-1 w-fit justify-self-center rounded-lg bg-success/10 border border-success/30">
+          <div className="flex md:hidden items-center  gap-2 px-2 py-1 w-fit mx-auto rounded-lg bg-success/10 border border-success/30">
             <Globe className="h-3 w-3 text-success" />
             <span className="text-xs font-medium text-success">{targetNetwork.name}</span>
           </div>
