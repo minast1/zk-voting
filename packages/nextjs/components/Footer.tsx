@@ -19,8 +19,9 @@ export const Footer = () => {
   // const { price: nativeCurrencyPrice } = useFetchNativeCurrencyPrice();
 
   return (
-    <footer className="border-t border-border/50 py-8 text-center text-sm text-muted-foreground">
+    <footer className=" flex flex-col space-y-2 border-t border-border/50 py-8 text-center text-xs md:text-sm text-muted-foreground">
       <p>AnonVote — Private, Sybil-resistant voting for everyone</p>
+      <p>&copy; {new Date().getFullYear()} AnnonVote. All rights reserved.</p>
     </footer>
   );
 };

@@ -74,19 +74,17 @@ const PollmonitorTab = () => {
       {isCountingDown ? (
         <Card className="glass-card border-border/50">
           <CardHeader className="pb-3  w-full ">
-            <div className="flex items-center justify-between gap-4">
-              <CardTitle className="text-lg">{question}</CardTitle>
-              <CardDescription className="flex items-center gap-2 mt-1">
-                <Badge variant={!isExpired ? "default" : "secondary"}>{!isExpired ? "Active" : "Closed"}</Badge>
-                {!isExpired && (
-                  <div className="flex items-center gap-2">
-                    <span className={cn("text-xs font-mono", isExpired ? "text-destructive" : "text-primary")}>
-                      Time Remaining {formatted}
-                    </span>
-                  </div>
-                )}
-              </CardDescription>
-            </div>
+            <CardTitle className="text-sm md:text-lg flex flex-1">{question}</CardTitle>
+            <CardDescription className="flex  items-center gap-2 mt-1">
+              <Badge variant={!isExpired ? "default" : "secondary"}>{!isExpired ? "Active" : "Closed"}</Badge>
+              {!isExpired && (
+                <div className="flex items-center gap-2">
+                  <span className={cn("text-xs font-mono", isExpired ? "text-destructive" : "text-primary")}>
+                    Time Remaining {formatted}
+                  </span>
+                </div>
+              )}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-3 gap-4 text-center">

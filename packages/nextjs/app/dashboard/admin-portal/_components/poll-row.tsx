@@ -15,15 +15,15 @@ const PollRow = ({ id }: { id: number }) => {
     <>
       {pollData && (
         <Card className="glass-card border-border/50 opacity-70" key={id}>
-          <CardContent className="py-1">
-            <div className="flex items-center justify-between">
+          <CardContent className="md:py-1">
+            <div className="flex flex-col md:flex-row items-center justify-between">
               <div>
-                <p className="font-medium">{pollData[0]}</p>
+                <p className="font-normal text-sm md:text-base md:font-medium">{pollData[0]}</p>
                 <p className="text-xs text-muted-foreground">{pollData[1] + pollData[2]} total votes</p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 self-end md:self-auto">
                 <span className="text-xs text-muted-foreground"> {timeAgo(pollData[4])}</span>
-                <Badge variant="default">Closed</Badge>
+                <Badge variant="success">Closed</Badge>
               </div>
             </div>
           </CardContent>

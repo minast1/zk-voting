@@ -21,7 +21,7 @@ const PreviousPolls = () => {
     <PastPollsSkeleton />
   ) : (
     <div className="space-y-4">
-      <h3 className="text-lg font-medium text-muted-foreground">Previous Polls</h3>
+      <h3 className="text-base md:text-lg font-medium text-muted-foreground">Previous Polls</h3>
       {pollIds.length ? pollIds.map(id => <PollRow id={Number(id)} key={Number(id)} />) : null}
     </div>
   );

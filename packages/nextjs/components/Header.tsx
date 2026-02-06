@@ -114,10 +114,14 @@ export const Header = () => {
                 </a>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Link href="https://console.optimism.io/faucet" className="flex items-center gap-4">
-                  <Droplets className="h-4 w-4" />
-                  <span className="sm:inline">Faucet</span>
-                </Link>
+                {isLocalNetwork ? (
+                  <FaucetButton />
+                ) : (
+                  <Link href="https://console.optimism.io/faucet" className="flex items-center gap-4">
+                    <Droplets className="h-4 w-4" />
+                    <span className="sm:inline">Faucet</span>
+                  </Link>
+                )}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
 

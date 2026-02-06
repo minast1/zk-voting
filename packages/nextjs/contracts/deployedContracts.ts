@@ -30,7 +30,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 1,
+      deployedOnBlock: 2,
     },
     LeanIMT: {
       address: "0x00a1895eddeec621e7a0eb02e8d63649f584ad61",
@@ -62,7 +62,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 1,
+      deployedOnBlock: 3,
     },
     Voting: {
       address: "0x8ce361602b935680e8dec218b820ff5056beb7af",
@@ -642,7 +642,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 2,
+      deployedOnBlock: 3,
     },
   },
   84532: {

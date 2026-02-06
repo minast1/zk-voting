@@ -7,28 +7,36 @@ import Link from "next/link";
 // import { useAccount } from "wagmi";
 // import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 // import { useTargetNetwork } from "~~/hooks/scaffold-eth";
-import { ArrowRight, Eye, Lock, ShieldCheck, UserCog, Users, Vote } from "lucide-react";
+import { ArrowRight, Eye, Globe, Lock, ShieldCheck, UserCog, Users, Vote } from "lucide-react";
 import type { NextPage } from "next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~~/components/ui/card";
+import { useTargetNetwork } from "~~/hooks/scaffold-eth";
 
 //import { VoterRegistration } from "~~/components/voter-registration";
 
 const Home: NextPage = () => {
+  const { targetNetwork } = useTargetNetwork();
+
   return (
     <>
       <div className="space-y-12 max-w-5xl mx-auto">
         {/* Hero Section */}
-        <div className="text-center space-y-6 py-8 animate-fade-in">
+        <div className="text-center space-y-4 md:space-y-6 py-2 md:py-8 animate-fade-in">
+          <div className="flex md:hidden items-center  gap-2 px-2 py-1 w-fit justify-self-center rounded-lg bg-success/10 border border-success/30">
+            <Globe className="h-3 w-3 text-success" />
+            <span className="text-xs font-medium text-success">{targetNetwork.name}</span>
+          </div>
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
             <ShieldCheck className="w-4 h-4" />
             Sybil-Resistant & Private
           </div>
+
           <h1 className="text-4xl sm:text-5xl font-bold">
             <span className="gradient-text">Anonymous Voting</span>
             <br />
             <span className="text-foreground">Made Simple</span>
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-base md:text-large text-muted-foreground max-w-2xl mx-auto">
             Create polls, prove your eligibility, and vote exactly once — all without revealing your identity. Your vote
             matters, your privacy is protected.
           </p>
@@ -69,9 +77,9 @@ const Home: NextPage = () => {
 
         {/* <VoterRegistration leafEvents={leafEvents || []} /> */}
         {/* Portal Cards */}
-        <div className="grid sm:grid-cols-2 gap-6 py-8">
+        <div className="grid sm:grid-cols-2 gap-6 py-2 md:py-8">
           <Link href="/dashboard/voter-portal" className="group">
-            <Card className="glass-card border-border/50 h-full transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10">
+            <Card className="glass-card border-border/50 h-full hover:cursor-pointer transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10">
               <CardHeader>
                 <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                   <Users className="w-7 h-7 text-primary" />
@@ -106,7 +114,7 @@ const Home: NextPage = () => {
           </Link>
 
           <Link href="/dashboard/admin-portal" className="group">
-            <Card className="glass-card border-border/50 h-full transition-all duration-300 hover:border-accent/50 hover:shadow-lg hover:shadow-accent/10">
+            <Card className="glass-card border-border/50 h-full transition-all duration-300 hover:border-accent/50 hover:shadow-lg hover:shadow-accent/10 hover:cursor-pointer">
               <CardHeader>
                 <div className="w-14 h-14 rounded-xl bg-accent/10 flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
                   <UserCog className="w-7 h-7 text-accent" />

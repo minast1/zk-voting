@@ -9,6 +9,7 @@ import { Card, CardContent } from "~~/components/ui/card";
 import { Spinner } from "~~/components/ui/spinner";
 import { TabsContent } from "~~/components/ui/tabs";
 import { useDeployedContractInfo, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useIsMobile } from "~~/hooks/useIsMobile";
 import useVoterManagementLIst from "~~/hooks/useVoterManagementLIst";
 import { useChallengeStore } from "~~/services/store/zk-store";
 import { notification } from "~~/utils/scaffold-eth";
@@ -20,6 +21,7 @@ const PendingRequestsTab = () => {
   const { data: votingContractInfo } = useDeployedContractInfo({ contractName: "Voting" });
 
   const pendingRequests = voterManagementList.filter(v => v.status === "pending");
+  const isMobile = useIsMobile();
 
   const { writeContractAsync } = useScaffoldWriteContract({ contractName: "Voting" });
   const handleApprove = async (requester: string) => {
@@ -99,10 +101,10 @@ const PendingRequestsTab = () => {
         <div className="space-y-3">
           {pendingRequests.map(request => (
             <Card key={Number(request.timestamp)} className="glass-card border-border/50">
-              <CardContent className="py-4">
-                <div className="flex items-center justify-between gap-4">
+              <CardContent className="md:py-4">
+                <div className="flex items-center justify-between gap-2 md:gap-4">
                   <div className="flex-1">
-                    <Address address={request.address} format="long" />
+                    <Address address={request.address} format={isMobile ? "short" : "long"} />
 
                     <p className="text-xs text-muted-foreground mt-1">Requested {new Date().toLocaleDateString()}</p>
                   </div>
@@ -152,7 +154,7 @@ const PendingRequestsTab = () => {
               <Card key={idx} className="glass-card border-border/50 opacity-70">
                 <CardContent className="py-4">
                   <div className="flex items-center justify-between">
-                    <Address address={req.address} format="long" />
+                    <Address address={req.address} format={isMobile ? "short" : "long"} />
                     <Badge variant="default">approved</Badge>
                   </div>
                 </CardContent>
